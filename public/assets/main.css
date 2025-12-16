@@ -1,0 +1,50 @@
+* {
+    box-sizing: border-box;
+}
+#callToAction,
+#uploadResultsContainer,
+#coreSubjectsContainer,
+#electiveSubjectsContainer {
+    transition: transform 1s ease-in-out, opacity 1s ease-in-out,
+        z-index 1s ease-in-out;
+}
+
+.hide {
+    opacity: 0;
+    transform: translateX(100%);
+    position: absolute;
+    z-index: 0;
+}
+
+.showing {
+    opacity: 1;
+    transform: translateX(0%);
+    position: relative;
+    z-index: 1;
+}
+
+.hideCurrent {
+    transform: translateX(-100%);
+    opacity: 0;
+    position: absolute;
+    z-index: 0;
+}
+
+.animate-scale {
+    animation: scaleUp 2s ease-in-out infinite;
+}
+.animate-scale:hover {
+    animation-play-state: paused;
+}
+
+@keyframes scaleUp {
+    0% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+    100% {
+        transform: translateY(0px);
+    }
+}
