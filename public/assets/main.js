@@ -12,31 +12,72 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const firstNextBtn = document.getElementById("firstNextBtn");
     if (firstNextBtn) {
-        firstNextBtn.addEventListener("click", function () {
+        firstNextBtn.addEventListener("click", async function () {
             let currentStep = 1;
-            showProgress(currentStep);
-            currentStep++;
-
             const currentlyShowing = document.querySelector(
                 "#coreSubjectsContainer"
             );
             const electiveSubjectsContainer = document.getElementById(
                 "electiveSubjectsContainer"
             );
-            // const coreResults = document.getElementById("coreResults");
-            // coreResults.submit();
-            slideRight(currentlyShowing, electiveSubjectsContainer);
+            const coreResults = document.getElementById("coreResults");
+            const formData = new FormData(coreResults);
+            try {
+                const response = await ajaxRequest(
+                    "POST",
+                    coreResults.dataset.url,
+                    Object.fromEntries(formData)
+                );
+                if ((response.statusCode = 808)) {
+                    slideRight(currentlyShowing, electiveSubjectsContainer);
+                    showProgress(currentStep);
+                    currentStep++;
+                } else console.log(response.msg);
+            } catch (err) {
+                // console.log("Request failed");
+                console.log(err.error);
+            }
         });
     }
 
     const secondNextBtn = document.getElementById("secondNextBtn");
     if (secondNextBtn) {
-        secondNextBtn.addEventListener("click", function () {
-            const coreResults = document.getElementById("coreResults");
-            const formData = new FormData(coreResults);
-            data = Object.fromEntries(formData);
-            const electiveResults = document.getElementById("electiveResults");
-            electiveResults.submit();
+        secondNextBtn.addEventListener("click", async function () {
+            let currentStep = 2;
+            const curatingContainer = document.getElementById(
+                "curatingProgrammesContainer"
+            );
+            const currentlyShowing = document.getElementById(
+                "electiveSubjectsContainer"
+            );
+            const coreResultsForm = document.getElementById("coreResults");
+            const electiveResultsForm =
+                document.getElementById("electiveResults");
+            const coreSubjectsInput = Object.fromEntries(
+                new FormData(coreResultsForm)
+            );
+            const electiveSubjectInputs = Object.fromEntries(
+                new FormData(electiveResultsForm)
+            );
+
+            try {
+                const response = await ajaxRequest(
+                    "POST",
+                    electiveResultsForm.dataset.url,
+                    electiveSubjectInputs
+                );
+                if (response.statusCode === 808) {
+                    slideRight(currentlyShowing, curatingContainer);
+                    showProgress(currentStep);
+                    currentStep++;
+                    getProgrammes(response.url, {
+                        ...coreSubjectsInput,
+                        ...electiveSubjectInputs,
+                    });
+                } else console.log(response.msg);
+            } catch (err) {
+                console.log(err.error);
+            }
         });
     }
 
@@ -52,20 +93,20 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // const backBtn = document.getElementById("backBtn");
-    // if (backBtn) {
-    //     backBtn.addEventListener("click", function () {
-    //         const hiddenContainers = document.querySelectorAll(".hideCurrent");
-    //         const recentlyHidden =
-    //             hiddenContainers[hiddenContainers.length - 1];
-    //         if (recentlyHidden) {
-    //             const showing = document.querySelectorAll(".showing");
-    //             const currentlyShowing = showing[showing.length - 1];
-    //             currentlyShowing.classList.replace("showing", "hide");
-    //             recentlyHidden.classList.replace("hideCurrent", "showing");
-    //         }
-    //     });
-    // }
+    const backBtn = document.getElementById("backBtn");
+    if (backBtn) {
+        backBtn.addEventListener("click", function () {
+            const hiddenContainers = document.querySelectorAll(".hideCurrent");
+            const recentlyHidden =
+                hiddenContainers[hiddenContainers.length - 1];
+            if (recentlyHidden) {
+                const showing = document.querySelectorAll(".showing");
+                const currentlyShowing = showing[showing.length - 1];
+                currentlyShowing.classList.replace("showing", "hide");
+                recentlyHidden.classList.replace("hideCurrent", "showing");
+            }
+        });
+    }
 
     function slideRight(currentContainer, nextContainer) {
         if (currentContainer) {
@@ -90,17 +131,56 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    function ajaxRequest(el, data) {
-        $.ajax({
-            type: "POST",
-            url: el.dataset.url,
-            data: data,
-            success: function (response) {
-                console.log("success");
-            },
-            error: function (xhr, status, error) {
-                console.log(error);
-            },
+    function ajaxRequest(requestType, url, data) {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                type: requestType,
+                url: url,
+                data: data,
+                headers: {
+                    "X-CSRF-TOKEN": $('input[name="_token"]').val(),
+                },
+                success: function (response) {
+                    if (response.passed) resolve(response);
+                    else resolve(response);
+                },
+                error: function (xhr, status, error) {
+                    reject({ xhr, status, error });
+                },
+            });
         });
     }
+
+    async function getProgrammes(url, data) {
+        try {
+            const response = await ajaxRequest("POST", url, data);
+            if (response.statusCode === 808) {
+                console.log(response.data);
+                await updateProgress();
+                const progCont = document.getElementById(
+                    "viewProgrammesContainer"
+                );
+                progCont.classList.replace("opacity-0", "opacity-100");
+                progCont.classList.replace("scale-0", "scale-100");
+            } else console.log(response.msg);
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    function updateProgress() {
+        return new Promise((resolve) => {
+            const steps = document.querySelectorAll(".step");
+            steps.forEach((step, index) => {
+                setTimeout(() => {
+                    step.classList.add("text-yellow-400");
+                    if (index === steps.length - 1) {
+                        resolve();
+                    }
+                }, 2000 * (index + 1));
+            });
+        });
+    }
+
+    
 });

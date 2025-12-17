@@ -4,7 +4,8 @@
 #callToAction,
 #uploadResultsContainer,
 #coreSubjectsContainer,
-#electiveSubjectsContainer {
+#electiveSubjectsContainer, 
+#curatingProgrammesContainer {
     transition: transform 1s ease-in-out, opacity 1s ease-in-out,
         z-index 1s ease-in-out;
 }
@@ -48,3 +49,42 @@
         transform: translateY(0px);
     }
 }
+
+.spinner {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #3498db;
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+  animation: spin 1s linear infinite;
+  margin: 20px auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
+#progress-steps {
+  list-style: none;
+  padding: 0;
+  margin: 20px auto;
+  max-width: 300px;
+  text-align: left;
+}
+
+#progress-steps .step {
+  padding: 8px 12px;
+  border-left: 4px solid #ccc;
+  margin-bottom: 10px;
+  color: #555;
+}
+
+#progress-steps .step.active {
+  border-left-color: #3498db;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+

@@ -9,48 +9,108 @@ use App\Models\Grade;
 use App\Models\Programme;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use League\Config\Exception\ValidationException;
 
 class ProgrammeController extends Controller
 {
 
     // private $gradeMap = ['A1 - C6' => 'credit', 'D7' => 'pass'];
-    public function processCoreResults(Request $request)
+
+    public function validateCoreInput(Request $request)
     {
         try {
-            $this->validateCoreResult($request);
-
-            $gradeArray = ['english' => $request->get('englishGrade'), 'mathematics' => $request->get('cMathGrade'), 'science' => $request->get('scienceGrade'), 'social' => $request->get('socialGrade')];
-            $coresWithBestGrades = $this->getSubjectsWithBestGrades($gradeArray);
-            $possibleProgrammes = $this->filterProgrammeBasedOnCoreGrade($coresWithBestGrades);
-            dd($possibleProgrammes);
+            $request->validate(['englishGrade' => 'required|string|regex:/^[A-F][1-9]$/', 'cMathGrade' => 'required|string|regex:/^[A-F][1-9]$/', 'scienceGrade' => 'required|string|regex:/^[A-F][1-9]$/', 'socialGrade' => 'required|string|regex:/^[A-F][1-9]$/']);
+            return response()->json(['statusCode' => 808]);
         } catch (ValidationException $e) {
-            dd('Invalid grade format');
+            return response()->json(['statusCode' => 999, 'msg' => 'Please ensure all fields are filled with valid data']);
         }
     }
 
-
-
-
-    public function processElectiveResults(Request $request)
+    public function validateElectiveInput(Request $request)
     {
         try {
-            $this->validateElectiveResult($request);
-            $electiveOne = ucwords($request->get('electiveOne'));
-            $electiveTwo = ucwords($request->get('electiveTwo'));
-            $electiveThree = ucwords($request->get('electiveThree'));
-            $electiveFour = ucwords($request->get('electiveFour'));
-
-            $subjectGradesArray = [$electiveOne => $request->get('electiveOneGrade'), $electiveTwo => $request->get('electiveTwoGrade'), $electiveThree => $request->get('electiveThreeGrade'), $electiveFour => $request->get('electiveFourGrade')];
-            $electivesWithBestGrades = $this->getSubjectsWithBestGrades($subjectGradesArray);
-            $focisElligbleProgramesIds = $this->elligibleProgrammesIds($electivesWithBestGrades, 'Faculty of Computing & Information Systems');
-            dd($focisElligbleProgramesIds);
-
-            $this->processElectiveNames([$electiveOne, $electiveTwo, $electiveThree, $electiveFour]);
+            $request->validate([
+                'electiveOne' => ['required', 'string', 'regex:/^([A-Za-z]+ [A-Za-z]+|[A-Za-z]+)$/'],
+                'electiveTwo' => ['required', 'string', 'regex:/^([A-Za-z]+ [A-Za-z]+|[A-Za-z]+)$/'],
+                'electiveThree' => ['required', 'string', 'regex:/^([A-Za-z]+ [A-Za-z]+|[A-Za-z]+)$/'],
+                'electiveFour' => ['required', 'string', 'regex:/^([A-Za-z]+ [A-Za-z]+|[A-Za-z]+)$/'],
+                'electiveOneGrade' => 'required|string|regex:/^[A-F][1-9]$/',
+                'electiveTwoGrade' => 'required|string|regex:/^[A-F][1-9]$/',
+                'electiveThreeGrade' => 'required|string|regex:/^[A-F][1-9]$/',
+                'electiveFourGrade' => 'required|string|regex:/^[A-F][1-9]$/',
+            ]);
+            return response()->json(['statusCode' => 808, 'url' => route('programmes-recommended')]);
         } catch (ValidationException $e) {
-            dd($e->getMessage());
+            return response()->json(['statusCode' => 999, 'msg' => 'Please ensure all fields are filled with valid data']);
         }
-        dd($request);
+    }
+
+    public function programmesRecommended(Request $request)
+    {
+
+
+        $elligibleProgrammesIdBasedOnCores = $this->processCoreResults($request);
+        try {
+            $focisProgrammesUserElligibleToStudyBasedOnElectives = $this->processElectiveResults($request, 'Faculty of Computing & Information Systems');
+            $foeProgrammesUserElligibleToStudyBasedOnElectives = $this->processElectiveResults($request, 'Faculty of Engineering');
+            $businessSchoolProgrammesElligibleToStudyBasedOnElectives = $this->processElectiveResults($request, 'Business School');
+            $focisProgrammesIds = $this->filterArrayBasedOnSimilarIds($focisProgrammesUserElligibleToStudyBasedOnElectives, $elligibleProgrammesIdBasedOnCores);
+            $foeProgrammesIds = $this->filterArrayBasedOnSimilarIds($foeProgrammesUserElligibleToStudyBasedOnElectives, $elligibleProgrammesIdBasedOnCores);
+            // return response()->json(['statusCode' => 808, 'data' => ['foe' => $foeProgrammesIds, 'foes' => $foeProgrammesUserElligibleToStudyBasedOnElectives]]);
+            $businessSchoolProgrammesIds = $this->filterArrayBasedOnSimilarIds($businessSchoolProgrammesElligibleToStudyBasedOnElectives, $elligibleProgrammesIdBasedOnCores);
+            $focisProgrammes = $this->getProgrammesFromId($focisProgrammesIds);
+            $foeProgrammes = $this->getProgrammesFromId($foeProgrammesIds);
+            $businessSchoolProgrammes = $this->getProgrammesFromId($businessSchoolProgrammesIds);
+            return response()->json(['statusCode' => 808, 'data' => ['focis' => $focisProgrammes, 'foe' => $foeProgrammes, 'bS' => $businessSchoolProgrammes]]);
+        } catch (Exception $e) {
+            return response()->json(['statusCode' => 999, 'msg' => $e->getMessage()]);
+        }
+    }
+
+    private function filterArrayBasedOnSimilarIds($programmesElligibleToStudyBasedOnElectives, $elligibleProgrammesBasedOnCores)
+    {
+        $result = collect($programmesElligibleToStudyBasedOnElectives)->intersect($elligibleProgrammesBasedOnCores)->values()->toArray();
+        return $result;
+    }
+    private function getProgrammesFromId($programmesIdArray)
+    {
+        $programmes = [];
+        if ($programmesIdArray) {
+            foreach ($programmesIdArray as $id) {
+                $programme = Programme::find($id);
+                array_push($programmes, $programme);
+            }
+        }
+        return $programmes;
+    }
+    public function processCoreResults(Request $request)
+    {
+
+        $this->validateCoreInput($request);
+        $gradeArray = ['english' => $request->get('englishGrade'), 'mathematics' => $request->get('cMathGrade'), 'science' => $request->get('scienceGrade'), 'social' => $request->get('socialGrade')];
+        $coresWithBestGrades = $this->getSubjectsWithBestGrades($gradeArray);
+        $elligibleProgrammesId = $this->filterProgrammeBasedOnCoreGrade($coresWithBestGrades);
+        return $elligibleProgrammesId;
+    }
+
+    public function processElectiveResults(Request $request, $facultyName)
+    {
+
+        $this->validateElectiveInput($request);
+        $electiveOne = ucwords($request->get('electiveOne'));
+        $electiveTwo = ucwords($request->get('electiveTwo'));
+        $electiveThree = ucwords($request->get('electiveThree'));
+        $electiveFour = ucwords($request->get('electiveFour'));
+
+        $subjectGradesArray = [$electiveOne => $request->get('electiveOneGrade'), $electiveTwo => $request->get('electiveTwoGrade'), $electiveThree => $request->get('electiveThreeGrade'), $electiveFour => $request->get('electiveFourGrade')];
+        $electivesWithBestGrades = $this->getSubjectsWithBestGrades($subjectGradesArray);
+        try {
+            $elligbleProgramesIds = $this->elligibleProgrammesIds(coreSubjects: null, electives: $electivesWithBestGrades, faculty_name: $facultyName);
+            return $elligbleProgramesIds;
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
     }
 
     public function getSubjectsWithBestGrades(array $gradeArray, int $lowestAcceptableGrade = 7)
@@ -73,102 +133,81 @@ class ProgrammeController extends Controller
             }
         } else $subjectsWithBestGrades = $gradeArray;
 
+        // Log::info("Subjects with best grades: ", $subjectsWithBestGrades);
         return $subjectsWithBestGrades;
     }
 
     public function filterProgrammeBasedOnCoreGrade($subjectsWithBestGrades)
     {
-        $coreQuery = CoreSubject::query();
+        $coreSubjectsModel = null;
         if (isset($subjectsWithBestGrades['english']) && isset($subjectsWithBestGrades['mathematics'])) {
-            if (isset($subjectsWithBestGrades['science'])) $coreQuery->where("science", '=', 'required')->where('social', '=', 'not required');
-            else if (isset($subjectsWithBestGrades['social'])) $coreQuery->where("science", '=', 'not required')->where('social', '=', 'required');
-            $coreSubjectsModel = $coreQuery->first();
-            $programmes = Programme::where('core_subject_id', '=', $coreSubjectsModel->id)->get();
-
+            if (isset($subjectsWithBestGrades['science'])) $coreSubjectsModel = CoreSubject::where("science", '=', 'required')->where('social', '=', 'not required')->first();
+            $programmesThatNeedScienceRequired = Programme::where('core_subject_id', '=', $coreSubjectsModel?->id)->pluck('id');
+            $programmes = $programmesThatNeedScienceRequired;
+            if (isset($subjectsWithBestGrades['social'])) {
+                $coreSubjectsModel = CoreSubject::where("science", '=', 'not required')->where('social', '=', 'required')->first();
+                $programmesThatNeedSocialRequired = Programme::where('core_subject_id', '=', $coreSubjectsModel?->id)->pluck('id');
+                $programmes = $programmes->concat($programmesThatNeedSocialRequired);
+            }
+            Log::info('Programmes with certain cores required ids: ', $programmes->toArray());
             // dd($programmes);
             return $programmes;
         } else return collect();
     }
 
-    public function validateElectiveResult($request)
-    {
-        try {
-            $request->validate([
-                'electiveOne' => ['required', 'string', 'regex:/^([A-Za-z]+ [A-Za-z]+|[A-Za-z]+)$/'],
-                'electiveTwo' => ['required', 'string', 'regex:/^([A-Za-z]+ [A-Za-z]+|[A-Za-z]+)$/'],
-                'electiveThree' => ['required', 'string', 'regex:/^([A-Za-z]+ [A-Za-z]+|[A-Za-z]+)$/'],
-                'electiveFour' => ['required', 'string', 'regex:/^([A-Za-z]+ [A-Za-z]+|[A-Za-z]+)$/'],
-                'electiveOneGrade' => 'required|string|regex:/^[A-F][1-9]$/',
-                'electiveTwoGrade' => 'required|string|regex:/^[A-F][1-9]$/',
-                'electiveThreeGrade' => 'required|string|regex:/^[A-F][1-9]$/',
-                'electiveFourGrade' => 'required|string|regex:/^[A-F][1-9]$/',
-            ]);
-        } catch (ValidationException $e) {
-            throw new Exception("Invalid input found");
-        }
-    }
-
-    public function validateCoreResult($request)
-    {
-        try {
-            $request->validate(['englishGrade' => 'required|string|regex:/^[A-F][1-9]$/', 'cMathGrade' => 'required|string|regex:/^[A-F][1-9]$/', 'scienceGrade' => 'required|string|regex:/^[A-F][1-9]$/', 'socialGrade' => 'required|string|regex:/^[A-F][1-9]$/']);
-        } catch (ValidationException $e) {
-            throw new Exception("Invalid grade selected");
-        }
-    }
-    public function processElectiveNames(array $electiveNames) {}
-
-    public function elligibleProgrammesIds($electives, $faculty_name)
+    public function elligibleProgrammesIds($coreSubjects, $electives, $faculty_name)
     {
         $faculty = Faculty::where('faculty_name', 'LIKE', "%{$faculty_name}%")->first();
-        $idOfFacultyProgrammesUserCanOffer = [];
-        $facultyProgrammes = $faculty->programmes;
-        $seen = false;
-        foreach ($facultyProgrammes as $facultyProgramme) {
-            $electiveSubject = ElectiveSubject::find($facultyProgramme->elective_subject_id);
-            $electiveSubjects = [$electiveSubject->elective_one, $electiveSubject->elective_two, $electiveSubject->elective_three];
-            $subjectsOccurence = array_count_values($electiveSubjects);
+        if ($faculty) {
+            $idOfFacultyProgrammesUserCanOffer = [];
+            $facultyProgrammes = $faculty->programmes;
+            $seen = false;
+            foreach ($facultyProgrammes as $facultyProgramme) {
+                $electiveSubject = ElectiveSubject::find($facultyProgramme->elective_subject_id);
+                $electiveSubjects = [$electiveSubject->elective_one, $electiveSubject->elective_two, $electiveSubject->elective_three];
+                $subjectsOccurence = array_count_values($electiveSubjects);
 
-            if (isset($subjectsOccurence['any']) || isset($subjectsOccurence['science-related subject'])) {
+                if (isset($subjectsOccurence['any']) || isset($subjectsOccurence['science-related subject'])) {
 
-                $remainingElectives = array_keys(array_filter($subjectsOccurence, function ($value, $key) {
-                    return $key !== 'any' && $key !== 'science-related subject';
-                }, ARRAY_FILTER_USE_BOTH));
-                // dd($subjectsOccurence, $remainingElectives);
-                $seen = true;
-                if (count($remainingElectives)) {
-                    foreach ($remainingElectives as $elective) {
-                        if (array_search($elective, array_keys($electives)) === false) {
-                            $seen = false;
-                            break;
-                        }
-                        $seen = true;
-                    }
-                }
-            } else {
-                foreach ($electiveSubjects as $subject) {
-                    $subjectArray = explode('/', $subject);
-                    if (count($subjectArray) > 1) {
-                        foreach ($subjectArray as $s) {
-                            if (array_search($s, array_keys($electives)) === false) {
+                    $remainingElectives = array_keys(array_filter($subjectsOccurence, function ($value, $key) {
+                        return $key !== 'any' && $key !== 'science-related subject';
+                    }, ARRAY_FILTER_USE_BOTH));
+                    // dd($subjectsOccurence, $remainingElectives);
+                    $seen = true;
+                    if (count($remainingElectives)) {
+                        foreach ($remainingElectives as $elective) {
+                            if (array_search($elective, array_keys($electives)) === false) {
                                 $seen = false;
                                 break;
                             }
                             $seen = true;
                         }
-                    } else {
-                        if (array_search($subject, array_keys($electives)) === false) {
-                            $seen = false;
-                            break;
+                    }
+                } else {
+                    foreach ($electiveSubjects as $subject) {
+                        $subjectArray = explode('/', $subject);
+                        if (count($subjectArray) > 1) {
+                            foreach ($subjectArray as $s) {
+                                if (in_array($s, array_keys($electives))) {
+                                    $seen = true;
+                                    break;
+                                }
+                                $seen = false;
+                            }
+                        } else {
+                            if (array_search($subject, array_keys($electives)) === false) {
+                                $seen = false;
+                                break;
+                            }
+                            $seen = true;
                         }
-                        $seen = true;
                     }
                 }
+                if ($seen) {
+                    array_push($idOfFacultyProgrammesUserCanOffer, $facultyProgramme->id);
+                }
             }
-            if ($seen) {
-                array_push($idOfFacultyProgrammesUserCanOffer, $facultyProgramme->id);
-            }
-        }
-        return $idOfFacultyProgrammesUserCanOffer;
+            return $idOfFacultyProgrammesUserCanOffer;
+        } else throw new Exception("Faculty not yet in the university");
     }
 }
