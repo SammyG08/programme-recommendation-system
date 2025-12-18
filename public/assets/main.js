@@ -108,6 +108,25 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    const electivesSelect = document.querySelectorAll(".electiveSelect");
+    if (electivesSelect) {
+        electivesSelect.forEach((select) =>
+            select.addEventListener("change", updateOptions)
+        );
+    }
+
+    const viewProgrammesBtn = document.getElementById("viewProgrammesBtn");
+    if (viewProgrammesBtn) {
+        const uploadResultsContainer = document.getElementById(
+            "uploadResultsContainer"
+        );
+        const resultsContainer = document.getElementById("resultsContainer");
+        viewProgrammesBtn.addEventListener("click", () => {
+            zoomIn(uploadResultsContainer, resultsContainer);
+            populateProgrammesRecommended();
+        });
+    }
+
     function slideRight(currentContainer, nextContainer) {
         if (currentContainer) {
             currentContainer.classList.replace("showing", "hideCurrent");
@@ -115,6 +134,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 nextContainer.classList.replace("hide", "showing");
             }
         }
+    }
+
+    function zoomIn(current, next) {
+        current.classList.replace("showing", "zoomOut");
+        next.classList.replace("zoomOut", "zoomIn");
     }
 
     function showProgress(currentStep) {
@@ -155,13 +179,18 @@ document.addEventListener("DOMContentLoaded", function () {
         try {
             const response = await ajaxRequest("POST", url, data);
             if (response.statusCode === 808) {
-                console.log(response.data);
+                // console.log(response.data);
                 await updateProgress();
                 const progCont = document.getElementById(
                     "viewProgrammesContainer"
                 );
                 progCont.classList.replace("opacity-0", "opacity-100");
                 progCont.classList.replace("scale-0", "scale-100");
+                localStorage.setItem(
+                    "recommendedProgrammes",
+                    JSON.stringify(response.data)
+                );
+                console.log(response.data);
             } else console.log(response.msg);
         } catch (err) {
             console.log(err);
@@ -182,5 +211,48 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    
+    function updateOptions() {
+        const chosenValues = [...electivesSelect]
+            .map((s) => s.value)
+            .filter((v) => v);
+        electivesSelect.forEach((select) => {
+            [...select.options].forEach((opt) => {
+                opt.hidden = false;
+                if (
+                    chosenValues.includes(opt.value) &&
+                    select.value !== opt.value
+                ) {
+                    opt.hidden = true;
+                }
+            });
+        });
+    }
+
+    function populateProgrammesRecommended() {
+        const programmes = localStorage.getItem("recommendedProgrammes");
+        console.log(programmes);
+        if (programmes) {
+            const programmesAccordionContainer = document.getElementById(
+                "programmesAccordionContainer"
+            );
+            for (const faculty in programmes) {
+                console.log(faculty);
+                const div = document.createElement("div");
+                div.classList.add(
+                    "w-full",
+                    "flex",
+                    "justify-between",
+                    "items-center",
+                    "p-5",
+                    "shadow",
+                    "shadow-white/40",
+                    "text-xs",
+                    "md:text-xl",
+                    "rounded-xl"
+                );
+                div.innerHTML = `<p class=font-semibold>${faculty}</p><i class=bi bi-caret-right-fill></i>`;
+                programmesAccordionContainer.appendChild(div);
+            }
+        }
+    }
 });

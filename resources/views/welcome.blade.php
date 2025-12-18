@@ -20,7 +20,7 @@
 
 <body>
     <div class="w-full max-w-screen h-full relative overflow-x-hidden flex min-h-screen bg-black">
-        <div class="bg-black w-full flex flex-col items-center justify-center sm:justify-center 2xl:justify-center min-h-screen py-4 2xl:p-0 min-[320px]:p-7 showing gap-20"
+        <div class="bg-black w-full flex flex-col items-center justify-center  min-h-screen py-4 2xl:p-0 min-[320px]:p-7 showing gap-20"
             id="callToAction">
             <div
                 class="text-white font-bold lg:max-w-[70%] 2xl:max-w-[50%] w-full flex flex-col justify-center items-start p-5 min-[320px]:p-10 2xl:text-justify">
@@ -156,14 +156,14 @@
                             class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 w-full gap-10"
                             method="post" data-url="{{ route('validate-electives-input') }}">
                             @csrf
-                            <x-elective-details-component header="Elective One Details" inputName="electiveOne"
-                                selectName="electiveOneGrade" />
-                            <x-elective-details-component header="Elective Two Details" inputName="electiveTwo"
-                                selectName="electiveTwoGrade" />
-                            <x-elective-details-component header="Elective Three Details" inputName="electiveThree"
-                                selectName="electiveThreeGrade" />
-                            <x-elective-details-component header="Elective Four Details" inputName="electiveFour"
-                                selectName="electiveFourGrade" />
+                            <x-elective-details-component header="Elective Details" name="electiveOne"
+                                className="electiveSelect" selectName="electiveOneGrade" :electives="$electives" />
+                            <x-elective-details-component header="Elective Details" name="electiveTwo"
+                                className="electiveSelect" selectName="electiveTwoGrade" :electives="$electives" />
+                            <x-elective-details-component header="Elective Details" name="electiveThree"
+                                className="electiveSelect" selectName="electiveThreeGrade" :electives="$electives" />
+                            <x-elective-details-component header="Elective Details" name="electiveFour"
+                                className="electiveSelect" selectName="electiveFourGrade" :electives="$electives" />
                         </form>
                         <div
                             class="flex flex-col lg:flex-row text-white rounded-3xl w-full justify-between gap-10 bg-neutral-950 p-1">
@@ -181,51 +181,89 @@
                     </div>
                 </div>
 
-                <div class="flex flex-col w-full items-center justify-evenly hide"
-                    id="curatingProgrammesContainer">
+                <div class="flex flex-col w-full items-center justify-evenly hide" id="curatingProgrammesContainer">
                     <div
                         class=" text-white font-bold lg:max-w-[70%] 2xl:max-w-[50%] w-full flex flex-col justify-between items-center p-5 lg:p-10 2xl:text-justify gap-5">
                         <div class="flex flex-col items-start gap-4 w-full">
-                            <div class="flex w-full justify-center bg-neutral-900/25 mb-7 p-5 gap-2 text-md md:text-2xl items-center rounded-xl relative">
+                            <div
+                                class="flex w-full justify-center bg-neutral-900/25 mb-7 p-5 gap-2 text-md md:text-2xl items-center rounded-xl relative">
                                 <i class="bi bi-cpu-fill"></i>
                                 <h1 class="">Curating Eligible Programmes</h1>
-                                <div class="rounded-xl absolute -top-3 right-0 p-2 bg-blue-500/50 text-xs">processing</div>
+                                {{-- <div class="rounded-xl absolute -top-3 right-0 p-2 bg-blue-500/50 text-xs">processing</div> --}}
                             </div>
                             {{-- <p class="text-normal text-md md:text-xl w-full mb-3">
                                 We are curating a list of programmes you are eligible to study at
                                 Ghana Communication Technology University.
                             </p> --}}
-                            <p class="text-normal text-sm md:text-md w-full text-red-500"><i class="bi bi-exclamation-triangle-fill mr-2"></i>Please do not
+                            <p class="text-normal text-sm md:text-md w-full text-red-500"><i
+                                    class="bi bi-exclamation-triangle-fill mr-2"></i>Please do not
                                 leave this page
                                 during the process</p>
                         </div>
-                        <div class="flex flex-col items-start gap-5 w-full bg-neutral-900 rounded-xl shadow shadow-white">
+                        <div
+                            class="flex flex-col items-start gap-5 w-full bg-neutral-900 rounded-xl shadow shadow-white">
                             <ul class="list-disc list-inside p-2 w-full flex flex-col gap-3">
-                                <li class="flex gap-2 w-full bg-black p-5 rounded-xl transition-colors duration-100"> <span class="step bi bi-check-circle-fill"></span><span
-                                        class="">Checking results</span></li>
-                                <li class="flex gap-2 w-full bg-black p-5 rounded-xl transition-colors duration-100"> <span class="step bi bi-check-circle-fill"></span><span
-                                        class="">Matching programmes</span></li>
-                                <li class="flex gap-2 w-full bg-black p-5 rounded-xl transition-colors duration-100"> <span class="step bi bi-check-circle-fill"></span><span
-                                        class="">Filtering programmes </span></li>
-                                <li class="flex gap-2 w-full bg-black p-5 rounded-xl transition-colors duration-100"> <span class="step bi bi-check-circle-fill"></span><span
-                                        class="">Compiling programmes</span></li>
-                                
+                                <li class="flex gap-2 w-full bg-black p-5 rounded-xl transition-colors duration-100">
+                                    <span class="step bi bi-check-circle-fill"></span><span class="">Checking
+                                        results</span></li>
+                                <li class="flex gap-2 w-full bg-black p-5 rounded-xl transition-colors duration-100">
+                                    <span class="step bi bi-check-circle-fill"></span><span class="">Matching
+                                        programmes</span></li>
+                                <li class="flex gap-2 w-full bg-black p-5 rounded-xl transition-colors duration-100">
+                                    <span class="step bi bi-check-circle-fill"></span><span class="">Filtering
+                                        programmes </span></li>
+                                <li class="flex gap-2 w-full bg-black p-5 rounded-xl transition-colors duration-100">
+                                    <span class="step bi bi-check-circle-fill"></span><span class="">Compiling
+                                        programmes</span></li>
+
                             </ul>
                         </div>
-                        <div class="flex justify-start items-center w-full rounded-xl bg-neutral-900 mt-5 relative overflow-hidden transition-all duration-300 scale-0 opacity-0 " id="viewProgrammesContainer">
+                        <div class="flex justify-start items-center w-full rounded-xl bg-neutral-900 mt-5 relative overflow-hidden transition-all duration-300 scale-0 opacity-0 "
+                            id="viewProgrammesContainer">
                             <button
-                               class="transition-all duration-3000 bg-black text-white rounded-xl px-10 py-2 hover:bg-neutral-950"
-                               id="viewProgrammesBtn">Programmes
-                               <span class="bi bi-caret-right-fill ml-2"></span></button>
+                                class="transition-all duration-3000 bg-black text-white rounded-xl px-10 py-2 hover:bg-neutral-950"
+                                id="viewProgrammesBtn">Programmes
+                                <span class="bi bi-caret-right-fill ml-2"></span></button>
 
                         </div>
                     </div>
-                 
+
                 </div>
 
             </div>
 
 
+        </div>
+
+        <div class="class bg-black w-full h-full flex flex-col items-center justify-center min-h-screen py-20 2xl:p-0 min-[320px]:px-7 zoomOut"
+            id="resultsContainer">
+            <div
+                class="text-white font-bold lg:max-w-[70%] 2xl:max-w-[50%] w-full flex flex-col justify-center items-start p-5 min-[320px]:p-10 2xl:text-justify border border-white/50 bg-white/5 rounded-xl">
+                <div class="flex justify-center w-full p-5 text-xl md:text-5xl bg-black text-white rounded-xl -translate-y-20 border animate-border"><i class="bi bi-mortarboard"></i></div>
+                <h1 class="text-xl md:text-3xl mb-7 -mt-10">
+                    Welcome to your academic journey!
+                </h1>
+                <p class="text-normal text-md md:text-xl w-full mb-7">
+                    Take a deep breath and explore the opportunities ahead.
+                    Each faculty opens doors to exciting courses designed to help you grow,
+                    discover your strengths, and shape your future with confidence.
+                </p>
+            </div>
+            <div class ="-translate-y-10 lg:max-w-[75%] 2xl:max-w-[55%] flex flex-col text-white rounded-xl w-full p-5 justify-between gap-10 bg-gray-950 border animate-border" id="programmesAccordionContainer">
+                {{-- <div class="w-full flex justify-between items-center p-5 shadow shadow-white/40 text-xs md:text-xl rounded-xl">
+                    <p class="font-semibold">Faculty of Computing & Information Systems</p>
+                    <i class="bi bi-caret-right-fill"></i>
+                </div>
+                <div class="w-full flex justify-between items-center p-5 shadow shadow-white/40 text-xs md:text-xl rounded-xl">
+                    <p class="font-semibold">Faculty of Computing & Information Systems</p>
+                    <i class="bi bi-caret-right-fill"></i>
+                </div>
+                <div class="w-full flex justify-between items-center p-5 shadow shadow-white/40 text-xs md:text-xl rounded-xl">
+                    <p class="font-semibold">Faculty of Computing & Information Systems</p>
+                    <i class="bi bi-caret-right-fill"></i>
+                </div> --}}
+
+            </div>
         </div>
     </div>
 

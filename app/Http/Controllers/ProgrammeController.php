@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\ElectivesEnum;
 use App\Models\CoreSubject;
 use App\Models\ElectiveSubject;
 use App\Models\Faculty;
@@ -10,6 +11,7 @@ use App\Models\Programme;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rules\Enum;
 use League\Config\Exception\ValidationException;
 
 class ProgrammeController extends Controller
@@ -31,10 +33,10 @@ class ProgrammeController extends Controller
     {
         try {
             $request->validate([
-                'electiveOne' => ['required', 'string', 'regex:/^([A-Za-z]+ [A-Za-z]+|[A-Za-z]+)$/'],
-                'electiveTwo' => ['required', 'string', 'regex:/^([A-Za-z]+ [A-Za-z]+|[A-Za-z]+)$/'],
-                'electiveThree' => ['required', 'string', 'regex:/^([A-Za-z]+ [A-Za-z]+|[A-Za-z]+)$/'],
-                'electiveFour' => ['required', 'string', 'regex:/^([A-Za-z]+ [A-Za-z]+|[A-Za-z]+)$/'],
+                'electiveOne' => ['required', 'string', new Enum(ElectivesEnum::class)],
+                'electiveTwo' => ['required', 'string',  new Enum(ElectivesEnum::class)],
+                'electiveThree' => ['required', 'string',  new Enum(ElectivesEnum::class)],
+                'electiveFour' => ['required', 'string',  new Enum(ElectivesEnum::class)],
                 'electiveOneGrade' => 'required|string|regex:/^[A-F][1-9]$/',
                 'electiveTwoGrade' => 'required|string|regex:/^[A-F][1-9]$/',
                 'electiveThreeGrade' => 'required|string|regex:/^[A-F][1-9]$/',
@@ -62,7 +64,7 @@ class ProgrammeController extends Controller
             $focisProgrammes = $this->getProgrammesFromId($focisProgrammesIds);
             $foeProgrammes = $this->getProgrammesFromId($foeProgrammesIds);
             $businessSchoolProgrammes = $this->getProgrammesFromId($businessSchoolProgrammesIds);
-            return response()->json(['statusCode' => 808, 'data' => ['focis' => $focisProgrammes, 'foe' => $foeProgrammes, 'bS' => $businessSchoolProgrammes]]);
+            return response()->json(['statusCode' => 808, 'data' => ['Faculty of Computing & Information Systems' => $focisProgrammes, 'Faculty of Engineering' => $foeProgrammes, 'Business School' => $businessSchoolProgrammes]]);
         } catch (Exception $e) {
             return response()->json(['statusCode' => 999, 'msg' => $e->getMessage()]);
         }
@@ -78,7 +80,7 @@ class ProgrammeController extends Controller
         $programmes = [];
         if ($programmesIdArray) {
             foreach ($programmesIdArray as $id) {
-                $programme = Programme::find($id);
+                $programme = Programme::find($id)->pluck('programme_name');
                 array_push($programmes, $programme);
             }
         }
@@ -139,18 +141,12 @@ class ProgrammeController extends Controller
 
     public function filterProgrammeBasedOnCoreGrade($subjectsWithBestGrades)
     {
-        $coreSubjectsModel = null;
+        $coreQuery = CoreSubject::query();
         if (isset($subjectsWithBestGrades['english']) && isset($subjectsWithBestGrades['mathematics'])) {
-            if (isset($subjectsWithBestGrades['science'])) $coreSubjectsModel = CoreSubject::where("science", '=', 'required')->where('social', '=', 'not required')->first();
-            $programmesThatNeedScienceRequired = Programme::where('core_subject_id', '=', $coreSubjectsModel?->id)->pluck('id');
-            $programmes = $programmesThatNeedScienceRequired;
-            if (isset($subjectsWithBestGrades['social'])) {
-                $coreSubjectsModel = CoreSubject::where("science", '=', 'not required')->where('social', '=', 'required')->first();
-                $programmesThatNeedSocialRequired = Programme::where('core_subject_id', '=', $coreSubjectsModel?->id)->pluck('id');
-                $programmes = $programmes->concat($programmesThatNeedSocialRequired);
-            }
-            Log::info('Programmes with certain cores required ids: ', $programmes->toArray());
-            // dd($programmes);
+            if (isset($subjectsWithBestGrades['science'])) $coreQuery->where("science", '=', 'required')->where('social', '=', 'not required');
+            elseif (isset($subjectsWithBestGrades['social'])) $coreQuery->where("science", '=', 'not required')->where('social', '=', 'required');
+            else return collect();
+            $programmes = Programme::where('core_subject_id', '=', $coreQuery->first()?->id)->pluck('id');
             return $programmes;
         } else return collect();
     }

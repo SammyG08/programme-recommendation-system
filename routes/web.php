@@ -1,10 +1,12 @@
 <?php
 
+use App\ElectivesEnum;
 use App\Http\Controllers\ProgrammeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    $electives = ElectivesEnum::cases();
+    return view('welcome', compact('electives'));
 });
 Route::post('/validate/core/inputs', [ProgrammeController::class, 'validateCoreInput'])->name('validate-core-input');
 Route::post('/validate/electives/inputs', [ProgrammeController::class, 'validateElectiveInput'])->name('validate-electives-input');
