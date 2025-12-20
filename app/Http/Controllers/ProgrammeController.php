@@ -80,8 +80,8 @@ class ProgrammeController extends Controller
         $programmes = [];
         if ($programmesIdArray) {
             foreach ($programmesIdArray as $id) {
-                $programme = Programme::find($id)->pluck('programme_name');
-                array_push($programmes, $programme);
+                $programme = Programme::find($id);
+                array_push($programmes, $programme?->programme_name);
             }
         }
         return $programmes;

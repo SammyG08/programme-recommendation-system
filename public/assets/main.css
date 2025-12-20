@@ -47,6 +47,24 @@
     z-index: 0;
 }
 
+.rotate-up{
+    transform: rotate(180deg);
+}
+
+.slideUp{
+    transform: translateY(-100%);
+    opacity: 0;
+    position: absolute;
+    z-index: 0;
+}
+
+.slideDown{
+    transform: translateY(0%);
+    opacity: 1;
+    position: relative;
+    z-index: 1;
+}
+
 .showing {
     opacity: 1;
     transform: translateX(0%);

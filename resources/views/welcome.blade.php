@@ -235,7 +235,7 @@
 
         </div>
 
-        <div class="class bg-black w-full h-full flex flex-col items-center justify-center min-h-screen py-20 2xl:p-0 min-[320px]:px-7 zoomOut"
+        <div class="class bg-black w-full h-full flex flex-col items-center justify-center min-h-screen py-20 min-[320px]:px-7 zoomOut"
             id="resultsContainer">
             <div
                 class="text-white font-bold lg:max-w-[70%] 2xl:max-w-[50%] w-full flex flex-col justify-center items-start p-5 min-[320px]:p-10 2xl:text-justify border border-white/50 bg-white/5 rounded-xl">
@@ -250,18 +250,18 @@
                 </p>
             </div>
             <div class ="-translate-y-10 lg:max-w-[75%] 2xl:max-w-[55%] flex flex-col text-white rounded-xl w-full p-5 justify-between gap-10 bg-gray-950 border animate-border" id="programmesAccordionContainer">
-                {{-- <div class="w-full flex justify-between items-center p-5 shadow shadow-white/40 text-xs md:text-xl rounded-xl">
-                    <p class="font-semibold">Faculty of Computing & Information Systems</p>
-                    <i class="bi bi-caret-right-fill"></i>
-                </div>
-                <div class="w-full flex justify-between items-center p-5 shadow shadow-white/40 text-xs md:text-xl rounded-xl">
-                    <p class="font-semibold">Faculty of Computing & Information Systems</p>
-                    <i class="bi bi-caret-right-fill"></i>
-                </div>
-                <div class="w-full flex justify-between items-center p-5 shadow shadow-white/40 text-xs md:text-xl rounded-xl">
-                    <p class="font-semibold">Faculty of Computing & Information Systems</p>
-                    <i class="bi bi-caret-right-fill"></i>
+                {{-- <div class="w-full flex flex-col justify-center items-start p-5 shadow shadow-white/40 text-xs md:text-xl rounded-xl gap-5">
+                    <div class="flex justify-between items-center w-full">
+                        <p class="font-semibold">Faculty of Computing & Information Systems</p>
+                        <i class="bi bi-caret-right-fill"></i>
+                    </div>
+                    <div class="text-xs md:text-lg flex flex-col items-start justify-start gap-5 p-5 bg-white/5 w-full rounded-xl">
+                        <p class=""><i class="bi bi-mortarboard mr-2 "></i>BSc Computer Science</p>
+                        <p class=""><i class="bi bi-mortarboard mr-2 "></i>BSc Computer Science</p>
+                        <p class=""><i class="bi bi-mortarboard mr-2 "></i>BSc Computer Science</p>
+                    </div>
                 </div> --}}
+
 
             </div>
         </div>

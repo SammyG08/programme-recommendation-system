@@ -229,30 +229,83 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function populateProgrammesRecommended() {
-        const programmes = localStorage.getItem("recommendedProgrammes");
+        const programmes = JSON.parse(
+            localStorage.getItem("recommendedProgrammes")
+        );
         console.log(programmes);
         if (programmes) {
             const programmesAccordionContainer = document.getElementById(
                 "programmesAccordionContainer"
             );
             for (const faculty in programmes) {
-                console.log(faculty);
                 const div = document.createElement("div");
                 div.classList.add(
+                    "bg-black",
+                    "transition-all",
+                    "duration-500",
                     "w-full",
                     "flex",
-                    "justify-between",
-                    "items-center",
+                    "flex-col",
+                    "justify-center",
+                    "items-start",
                     "p-5",
                     "shadow",
                     "shadow-white/40",
                     "text-xs",
                     "md:text-xl",
-                    "rounded-xl"
+                    "rounded-xl",
+                    "gap-5",
+                    "overflow-hidden",
+                    "relative"
                 );
-                div.innerHTML = `<p class=font-semibold>${faculty}</p><i class=bi bi-caret-right-fill></i>`;
+                div.innerHTML = `<div class='flex justify-between items-center w-full'><p class='font-semibold'>${faculty}</p><i class='bi bi-caret-down-fill transition-all duration-500' onclick="showDropdown(this, '${faculty}')"></i></div>`;
                 programmesAccordionContainer.appendChild(div);
+                programmesDropdown = populateAccordion(programmes, faculty);
+                div.appendChild(programmesDropdown);
             }
         }
     }
+
+    function populateAccordion(programmes, faculty) {
+        const div = document.createElement("div");
+        div.classList.add(
+            "transition-transform",
+            "transition-opacity",
+            "duration-500",
+            "text-xs",
+            "md:text-lg",
+            "flex",
+            "flex-col",
+            "items-start",
+            "justify-start",
+            "gap-5",
+            "p-5",
+            "bg-white/5",
+            "w-full",
+            "rounded-xl",
+            "slideUp"
+        );
+        const id = faculty.replaceAll(" ", "");
+        div.id = id;
+        programmes[faculty].forEach((programme) => {
+            const p = document.createElement("p");
+            p.innerHTML = `<i class='bi bi-mortarboard mr-2'></i>${programme}`;
+            div.appendChild(p);
+        });
+        return div;
+    }
 });
+function showDropdown(el, faculty) {
+    const id = faculty.replaceAll(" ", "");
+    const showingDivs = document.querySelectorAll(".slideDown");
+    showingDivs.forEach((el) => el.classList.replace("slideDown", "slideUp"));
+    document
+        .querySelectorAll(".rotate-up")
+        .forEach((el) => el.classList.remove("rotate-up"));
+    const contentDiv = document.getElementById(id);
+    if (![...showingDivs].includes(contentDiv)) {
+        console.log("showing");
+        contentDiv.classList.replace("slideUp", "slideDown");
+        el.classList.add("rotate-up");
+    }
+}
