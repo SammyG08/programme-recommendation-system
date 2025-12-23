@@ -14,12 +14,6 @@ class CoreSubjectsSeeder extends Seeder
     public function run(): void
     {
         CoreSubject::factory()->create([
-            'mathematics' => 'required',
-            'science' => 'required',
-            'social' => 'required',
-            'english' => 'required'
-        ]);
-        CoreSubject::factory()->create([
             'mathematics' => 'not required',
             'science' => 'required',
             'social' => 'required',

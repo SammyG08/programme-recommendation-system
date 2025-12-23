@@ -205,16 +205,20 @@
                             <ul class="list-disc list-inside p-2 w-full flex flex-col gap-3">
                                 <li class="flex gap-2 w-full bg-black p-5 rounded-xl transition-colors duration-100">
                                     <span class="step bi bi-check-circle-fill"></span><span class="">Checking
-                                        results</span></li>
+                                        results</span>
+                                </li>
                                 <li class="flex gap-2 w-full bg-black p-5 rounded-xl transition-colors duration-100">
                                     <span class="step bi bi-check-circle-fill"></span><span class="">Matching
-                                        programmes</span></li>
+                                        programmes</span>
+                                </li>
                                 <li class="flex gap-2 w-full bg-black p-5 rounded-xl transition-colors duration-100">
                                     <span class="step bi bi-check-circle-fill"></span><span class="">Filtering
-                                        programmes </span></li>
+                                        programmes </span>
+                                </li>
                                 <li class="flex gap-2 w-full bg-black p-5 rounded-xl transition-colors duration-100">
                                     <span class="step bi bi-check-circle-fill"></span><span class="">Compiling
-                                        programmes</span></li>
+                                        programmes</span>
+                                </li>
 
                             </ul>
                         </div>
@@ -239,7 +243,10 @@
             id="resultsContainer">
             <div
                 class="text-white font-bold lg:max-w-[70%] 2xl:max-w-[50%] w-full flex flex-col justify-center items-start p-5 min-[320px]:p-10 2xl:text-justify border border-white/50 bg-white/5 rounded-xl">
-                <div class="flex justify-center w-full p-5 text-xl md:text-5xl bg-black text-white rounded-xl -translate-y-20 border animate-border"><i class="bi bi-mortarboard"></i></div>
+                <div
+                    class="flex justify-center w-full p-5 text-xl md:text-5xl bg-black text-white rounded-xl -translate-y-20 border animate-border">
+                    <i class="bi bi-mortarboard"></i>
+                </div>
                 <h1 class="text-xl md:text-3xl mb-7 -mt-10">
                     Welcome to your academic journey!
                 </h1>
@@ -249,22 +256,28 @@
                     discover your strengths, and shape your future with confidence.
                 </p>
             </div>
-            <div class ="-translate-y-10 lg:max-w-[75%] 2xl:max-w-[55%] flex flex-col text-white rounded-xl w-full p-5 justify-between gap-10 bg-gray-950 border animate-border" id="programmesAccordionContainer">
-                {{-- <div class="w-full flex flex-col justify-center items-start p-5 shadow shadow-white/40 text-xs md:text-xl rounded-xl gap-5">
-                    <div class="flex justify-between items-center w-full">
-                        <p class="font-semibold">Faculty of Computing & Information Systems</p>
-                        <i class="bi bi-caret-right-fill"></i>
-                    </div>
-                    <div class="text-xs md:text-lg flex flex-col items-start justify-start gap-5 p-5 bg-white/5 w-full rounded-xl">
-                        <p class=""><i class="bi bi-mortarboard mr-2 "></i>BSc Computer Science</p>
-                        <p class=""><i class="bi bi-mortarboard mr-2 "></i>BSc Computer Science</p>
-                        <p class=""><i class="bi bi-mortarboard mr-2 "></i>BSc Computer Science</p>
-                    </div>
-                </div> --}}
-
-
+            <div class ="-translate-y-10 lg:max-w-[75%] 2xl:max-w-[55%] flex flex-col text-white rounded-xl w-full p-5 justify-between gap-10 bg-black border animate-border"
+                id="programmesAccordionContainer">
             </div>
         </div>
+
+        <div class="hidden bg-black/70 w-full h-screen bottom-0 absolute z-2 top-0 items-center justify-center"
+            id="statusContainer">
+            <div class="flex flex-col items-center justify-center rounded-xl  px-10 py-5 bg-neutral-950">
+                <div class="spinner"></div>
+                <p class="text-white font-medium mt-2">Processing results...</p>
+            </div>
+        </div>
+
+        <div class="hidden bg-black/70 w-full h-screen bottom-0 absolute z-2 top-0 items-end py-5 justify-center overflow-hidden"
+            id="errContainer">
+            <div
+                class="flex flex-col items-center justify-center rounded-xl px-10 py-5 bg-neutral-900 transition-transform translate-y-20 duration-100">
+                <p class="text-white font-medium " id="errMsg"></p>
+            </div>
+        </div>
+
+
     </div>
 
 

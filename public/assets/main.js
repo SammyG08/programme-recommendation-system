@@ -9,7 +9,6 @@ document.addEventListener("DOMContentLoaded", function () {
             slideRight(currentlyShowing, uploadResultsContainer);
         });
     }
-
     const firstNextBtn = document.getElementById("firstNextBtn");
     if (firstNextBtn) {
         firstNextBtn.addEventListener("click", async function () {
@@ -22,6 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
             );
             const coreResults = document.getElementById("coreResults");
             const formData = new FormData(coreResults);
+            updateStatus();
             try {
                 const response = await ajaxRequest(
                     "POST",
@@ -29,13 +29,19 @@ document.addEventListener("DOMContentLoaded", function () {
                     Object.fromEntries(formData)
                 );
                 if ((response.statusCode = 808)) {
+                    updateStatus(true);
+                    document.body.style.overflowY = "auto";
                     slideRight(currentlyShowing, electiveSubjectsContainer);
                     showProgress(currentStep);
                     currentStep++;
-                } else console.log(response.msg);
+                } else {
+                    updateStatus(true);
+                    document.body.style.overflowY = "auto";
+                    showErrMsgForThreeSecs(response.msg);
+                }
             } catch (err) {
-                // console.log("Request failed");
-                console.log(err.error);
+                updateStatus(true);
+                showErrMsgForThreeSecs("An unexpected error occured");
             }
         });
     }
@@ -44,12 +50,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (secondNextBtn) {
         secondNextBtn.addEventListener("click", async function () {
             let currentStep = 2;
-            const curatingContainer = document.getElementById(
-                "curatingProgrammesContainer"
-            );
-            const currentlyShowing = document.getElementById(
-                "electiveSubjectsContainer"
-            );
+            updateStatus();
             const coreResultsForm = document.getElementById("coreResults");
             const electiveResultsForm =
                 document.getElementById("electiveResults");
@@ -67,16 +68,23 @@ document.addEventListener("DOMContentLoaded", function () {
                     electiveSubjectInputs
                 );
                 if (response.statusCode === 808) {
-                    slideRight(currentlyShowing, curatingContainer);
-                    showProgress(currentStep);
+                    getProgrammes(
+                        response.url,
+                        {
+                            ...coreSubjectsInput,
+                            ...electiveSubjectInputs,
+                        },
+                        currentStep
+                    );
                     currentStep++;
-                    getProgrammes(response.url, {
-                        ...coreSubjectsInput,
-                        ...electiveSubjectInputs,
-                    });
-                } else console.log(response.msg);
+                } else {
+                    updateStatus(true);
+                    document.body.style.overflowY = "auto";
+                    showErrMsgForThreeSecs(response.msg);
+                }
             } catch (err) {
-                console.log(err.error);
+                updateStatus(true);
+                showErrMsgForThreeSecs("An unexpected error occurred");
             }
         });
     }
@@ -96,6 +104,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const backBtn = document.getElementById("backBtn");
     if (backBtn) {
         backBtn.addEventListener("click", function () {
+            let currentStep = 2;
             const hiddenContainers = document.querySelectorAll(".hideCurrent");
             const recentlyHidden =
                 hiddenContainers[hiddenContainers.length - 1];
@@ -104,6 +113,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const currentlyShowing = showing[showing.length - 1];
                 currentlyShowing.classList.replace("showing", "hide");
                 recentlyHidden.classList.replace("hideCurrent", "showing");
+                showProgress(currentStep, true);
             }
         });
     }
@@ -141,17 +151,24 @@ document.addEventListener("DOMContentLoaded", function () {
         next.classList.replace("zoomOut", "zoomIn");
     }
 
-    function showProgress(currentStep) {
-        if (currentStep === 1) {
-            document.getElementById("line-1").style.width = "100%";
+    function showProgress(currentStep, back = false) {
+        if (!back) {
+            if (currentStep === 1) {
+                document.getElementById("line-1").style.width = "100%";
+                document
+                    .getElementById("dot-2")
+                    .classList.replace("bg-gray-300", "bg-blue-600");
+            } else if (currentStep === 2) {
+                document.getElementById("line-2").style.width = "100%";
+                document
+                    .getElementById("dot-3")
+                    .classList.replace("bg-gray-300", "bg-blue-600");
+            }
+        } else {
+            document.getElementById("line-1").style.width = "0%";
             document
                 .getElementById("dot-2")
-                .classList.replace("bg-gray-300", "bg-blue-600");
-        } else if (currentStep === 2) {
-            document.getElementById("line-2").style.width = "100%";
-            document
-                .getElementById("dot-3")
-                .classList.replace("bg-gray-300", "bg-blue-600");
+                .classList.replace("bg-blue-600", "bg-gray-300");
         }
     }
 
@@ -165,8 +182,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     "X-CSRF-TOKEN": $('input[name="_token"]').val(),
                 },
                 success: function (response) {
-                    if (response.passed) resolve(response);
-                    else resolve(response);
+                    resolve(response);
                 },
                 error: function (xhr, status, error) {
                     reject({ xhr, status, error });
@@ -175,12 +191,21 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    async function getProgrammes(url, data) {
+    async function getProgrammes(url, data, step) {
+        const curatingContainer = document.getElementById(
+            "curatingProgrammesContainer"
+        );
+        const currentlyShowing = document.getElementById(
+            "electiveSubjectsContainer"
+        );
         try {
             const response = await ajaxRequest("POST", url, data);
+            updateStatus(true);
+            document.body.style.overflowY = "auto";
             if (response.statusCode === 808) {
-                // console.log(response.data);
-                await updateProgress();
+                slideRight(currentlyShowing, curatingContainer);
+                showProgress(step);
+                await updateSteps();
                 const progCont = document.getElementById(
                     "viewProgrammesContainer"
                 );
@@ -190,14 +215,16 @@ document.addEventListener("DOMContentLoaded", function () {
                     "recommendedProgrammes",
                     JSON.stringify(response.data)
                 );
-                console.log(response.data);
-            } else console.log(response.msg);
+            }
         } catch (err) {
-            console.log(err);
+            console.log("error in getting programmes");
+            updateStatus(true);
+            document.body.style.overflowY = "auto";
+            showErrMsgForThreeSecs("An unexpected error occurred");
         }
     }
 
-    function updateProgress() {
+    function updateSteps() {
         return new Promise((resolve) => {
             const steps = document.querySelectorAll(".step");
             steps.forEach((step, index) => {
@@ -232,7 +259,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const programmes = JSON.parse(
             localStorage.getItem("recommendedProgrammes")
         );
-        console.log(programmes);
         if (programmes) {
             const programmesAccordionContainer = document.getElementById(
                 "programmesAccordionContainer"
@@ -294,6 +320,41 @@ document.addEventListener("DOMContentLoaded", function () {
         });
         return div;
     }
+
+    function updateStatus(showing = false) {
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+        });
+        document.body.style.overflowY = "hidden";
+        const statusContainer = document.getElementById("statusContainer");
+
+        if (!showing) {
+            if (statusContainer)
+                statusContainer.classList.replace("hidden", "flex");
+        } else {
+            if (statusContainer)
+                statusContainer.classList.replace("flex", "hidden");
+        }
+    }
+
+    function showErrMsgForThreeSecs(msg) {
+        const errContainer = document.getElementById("errContainer");
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+        });
+        document.body.style.overflowY = "hidden";
+        if (errContainer) {
+            errContainer.classList.replace("hidden", "flex");
+            errContainer.firstElementChild.classList.remove("translate-y-20");
+            document.getElementById("errMsg").textContent = msg;
+            setTimeout((msg) => {
+                errContainer.classList.replace("flex", "hidden");
+                document.body.style.overflowY = "auto";
+            }, 3000);
+        }
+    }
 });
 function showDropdown(el, faculty) {
     const id = faculty.replaceAll(" ", "");
@@ -304,7 +365,6 @@ function showDropdown(el, faculty) {
         .forEach((el) => el.classList.remove("rotate-up"));
     const contentDiv = document.getElementById(id);
     if (![...showingDivs].includes(contentDiv)) {
-        console.log("showing");
         contentDiv.classList.replace("slideUp", "slideDown");
         el.classList.add("rotate-up");
     }
