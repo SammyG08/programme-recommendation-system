@@ -215,6 +215,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     "recommendedProgrammes",
                     JSON.stringify(response.data)
                 );
+            } else if (response.statusCode === 999) {
+                showErrMsgForThreeSecs("An unexpected error occurred: ");
             }
         } catch (err) {
             console.log("error in getting programmes");
@@ -266,7 +268,7 @@ document.addEventListener("DOMContentLoaded", function () {
             for (const faculty in programmes) {
                 const div = document.createElement("div");
                 div.classList.add(
-                    "bg-black",
+                    "bg-neutral-950",
                     "transition-all",
                     "duration-500",
                     "w-full",
@@ -275,8 +277,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     "justify-center",
                     "items-start",
                     "p-5",
-                    "shadow",
-                    "shadow-white/40",
+                    "border",
+                    "border-white/40",
                     "text-xs",
                     "md:text-xl",
                     "rounded-xl",
@@ -306,15 +308,19 @@ document.addEventListener("DOMContentLoaded", function () {
             "justify-start",
             "gap-5",
             "p-5",
-            "bg-white/5",
+            "bg-black",
             "w-full",
             "rounded-xl",
-            "slideUp"
+            "slideUp",
+            "text-white/80",
+            "border",
+            "animate-border"
         );
         const id = faculty.replaceAll(" ", "");
         div.id = id;
         programmes[faculty].forEach((programme) => {
             const p = document.createElement("p");
+            // p.classList.add("w-full", "border-b", "border-white/50");
             p.innerHTML = `<i class='bi bi-mortarboard mr-2'></i>${programme}`;
             div.appendChild(p);
         });
@@ -369,3 +375,4 @@ function showDropdown(el, faculty) {
         el.classList.add("rotate-up");
     }
 }
+

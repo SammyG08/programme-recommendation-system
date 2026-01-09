@@ -1,26 +1,7 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <title>{{ config('app.name', 'Laravel') }}</title>
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
-
-    <link rel="stylesheet" href="{{ asset('assets/main.css') }}">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-</head>
-
-<body>
+@extends('layout.base')
+@section('content')
     <div class="w-full max-w-screen h-full relative overflow-x-hidden flex min-h-screen bg-black">
-        <div class="bg-black w-full flex flex-col items-center justify-center  min-h-screen py-4 2xl:p-0 min-[320px]:p-7 showing gap-20"
+        <div class="bg-black w-full flex flex-col items-center justify-center min-h-screen py-4 2xl:p-0 min-[320px]:p-7 showing gap-20"
             id="callToAction">
             <div
                 class="text-white font-bold lg:max-w-[70%] 2xl:max-w-[50%] w-full flex flex-col justify-center items-start p-5 min-[320px]:p-10 2xl:text-justify">
@@ -41,12 +22,12 @@
                 <button class="w-full bg-blue-500 rounded-3xl px-10 py-2 animate-scale" id="getStartedBtn"><span
                         class="bi bi-mortarboard mr-2"></span>Get
                     Started</button>
-                <button class="w-full bg-transparent rounded-3xl px-10 py-2 border-2 border-white "><span
-                        class="bi bi-gear mr-2"></span>Administrator</button>
+                <a href="{{ route('admin') }}" class="w-full bg-transparent rounded-3xl px-10 py-2 border-2 border-white flex justify-center items-center transition-colors hover:bg-white/5"><span
+                        class="bi bi-gear mr-2"></span>Administrator</a>
             </div>
         </div>
 
-        <div class="bg-black w-full h-full flex flex-col items-center justify-start 2xl:justify-start min-h-screen py-4 2xl:p-0 min-[320px]:p-7 hide"
+        <div class="bg-black w-full flex flex-col items-center justify-start 2xl:justify-start min-h-screen py-4 2xl:p-0 min-[320px]:p-7 hide overflow-hidden h-full sm:h-auto"
             id="uploadResultsContainer">
             <div class="w-full lg:max-w-2xl mx-auto my-20">
                 <div class="relative flex items-center justify-between">
@@ -81,8 +62,8 @@
 
 
 
-            <div class="w-full flex justify-center overflow-hidden relative">
-                <div class="flex flex-col w-full items-center justify-evenly showing" id="coreSubjectsContainer">
+            <div class="w-full flex justify-center relative">
+                <div class="flex flex-col w-full items-center justify-start showing" id="coreSubjectsContainer">
                     <div
                         class=" text-white font-bold lg:max-w-[70%] 2xl:max-w-[50%] w-full flex flex-col justify-start items-start p-5 md:p-10 2xl:text-justify">
                         <h1 class="text-xl md:text-5xl mb-7">
@@ -139,7 +120,7 @@
                     </div>
                 </div>
 
-                <div class="flex flex-col w-full items-center justify-evenly hide" id="electiveSubjectsContainer">
+                <div class="flex flex-col w-full items-center justify-start hide" id="electiveSubjectsContainer">
                     <div
                         class=" text-white font-bold lg:max-w-[70%] 2xl:max-w-[50%] w-full flex flex-col justify-start items-start p-5 min-[320px]:p-10 2xl:text-justify">
                         <h1 class="text-xl md:text-5xl mb-7">
@@ -181,7 +162,7 @@
                     </div>
                 </div>
 
-                <div class="flex flex-col w-full items-center justify-evenly hide" id="curatingProgrammesContainer">
+                <div class="flex flex-col w-full items-center justify-start hide" id="curatingProgrammesContainer">
                     <div
                         class=" text-white font-bold lg:max-w-[70%] 2xl:max-w-[50%] w-full flex flex-col justify-between items-center p-5 lg:p-10 2xl:text-justify gap-5">
                         <div class="flex flex-col items-start gap-4 w-full">
@@ -256,7 +237,7 @@
                     discover your strengths, and shape your future with confidence.
                 </p>
             </div>
-            <div class ="-translate-y-10 lg:max-w-[75%] 2xl:max-w-[55%] flex flex-col text-white rounded-xl w-full p-5 justify-between gap-10 bg-black border animate-border"
+            <div class ="-translate-y-10 lg:max-w-[70%] 2xl:max-w-[50%] flex flex-col text-white rounded-xl w-full p-5 justify-between gap-2 border border-white/50"
                 id="programmesAccordionContainer">
             </div>
         </div>
@@ -279,9 +260,4 @@
 
 
     </div>
-
-
-    <script src="{{ asset('assets/main.js') }}"></script>
-</body>
-
-</html>
+@endsection

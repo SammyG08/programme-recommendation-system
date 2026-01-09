@@ -28,6 +28,6 @@ class DatabaseSeeder extends Seeder
         $this->call(GradeSeeder::class);
         $this->call(ProgrammeTypeSeeder::class);
         $this->call(FacultySeeder::class);
-        $this->call(ElectiveSubjectSeeder::class);
+        // $this->call(ElectiveSubjectSeeder::class);
     }
 }

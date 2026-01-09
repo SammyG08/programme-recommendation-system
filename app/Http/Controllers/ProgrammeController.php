@@ -51,7 +51,7 @@ class ProgrammeController extends Controller
 
     public function programmesRecommended(Request $request, int $step = 1)
     {
-
+        Log::info('Processing programme recommendation request');
         try {
             $elligibleProgrammesIdBasedOnCores = $this->processCoreResults($request);
             $focisProgrammesUserElligibleToStudyBasedOnElectives = $this->processElectiveResults($request, 'Faculty of Computing & Information Systems');
@@ -68,11 +68,15 @@ class ProgrammeController extends Controller
             $businessSchoolProgrammes = $this->getProgrammesFromId($businessSchoolProgrammesIds);
 
             $data = ['Faculty of Computing & Information Systems' => $focisProgrammes, 'Faculty of Engineering' => $foeProgrammes, 'Business School' => $businessSchoolProgrammes];
+            Log::info('Focis Programme ids:', $focisProgrammesIds);
+            Log::info('Foe Programme ids:', $foeProgrammesIds);
+            Log::info('Bs Programme ids:', $businessSchoolProgrammesIds);
             $data = $this->filterEmptyProgrammesOut($data);
             $returnInfo = count($data) ?
                 response()->json(['statusCode' => 808, 'data' => $data]) : response()->json(['statusCode' => 444]);
             return $returnInfo;
         } catch (Exception $e) {
+            Log::info('Error encountered: ' . $e);
             return response()->json(['statusCode' => 999, 'msg' => $e->getMessage()]);
         }
     }
@@ -95,14 +99,15 @@ class ProgrammeController extends Controller
     }
     private function getProgrammesFromId($programmesIdArray)
     {
-        $programmes = [];
+        $emptyProgrammes = [];
         if ($programmesIdArray) {
-            foreach ($programmesIdArray as $id) {
-                $programme_name = Programme::find($id)->value('programme_name');
-                array_push($programmes, $programme_name);
-            }
+            $filledProgrammes = Programme::whereIn('id', $programmesIdArray)
+                ->pluck('programme_name')
+                ->toArray();
+            Log::info("Programme names: ", $filledProgrammes);
+            return $filledProgrammes;
         }
-        return $programmes;
+        return $emptyProgrammes;
     }
     public function processCoreResults(Request $request)
     {
@@ -191,6 +196,7 @@ class ProgrammeController extends Controller
                 }
             }
         }
+        // Log::info('Programme found:', $programmes->toArray());
         return $programmes;
     }
 
@@ -237,18 +243,27 @@ class ProgrammeController extends Controller
                     }, ARRAY_FILTER_USE_BOTH));
                     if (count($remainingElectives)) {
                         foreach ($remainingElectives as $elective) {
-                            if (array_search($elective, array_keys($electives)) === false) {
+                            $subjectArray = explode('|', $elective);
+
+                            foreach ($subjectArray as $s) {
+                                if (in_array($s, array_keys($electives))) {
+                                    $seen = true;
+                                    unset($electives[$s]);
+                                    break;
+                                }
                                 $seen = false;
-                                break;
                             }
+                            if (!$seen) break;
                         }
                     }
                 } else {
                     foreach ($electiveSubjects as $subject) {
-                        $subjectArray = explode('/', $subject);
+                        $subjectArray = explode('|', $subject);
+
                         foreach ($subjectArray as $s) {
                             if (in_array($s, array_keys($electives))) {
                                 $seen = true;
+                                unset($electives[$s]);
                                 break;
                             }
                             $seen = false;
