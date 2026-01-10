@@ -203,12 +203,13 @@
 
                             </ul>
                         </div>
-                        <div class="flex justify-start items-center w-full rounded-xl bg-neutral-900 mt-5 relative overflow-hidden transition-all duration-300 scale-0 opacity-0 "
+                        <div class="flex justify-center items-start flex-col w-full rounded-xl bg-neutral-900 mt-5 relative overflow-hidden transition-all duration-300 scale-0 opacity-0 "
                             id="viewProgrammesContainer">
                             <button
-                                class="transition-all duration-3000 bg-black text-white rounded-xl px-10 py-2 hover:bg-neutral-950"
+                                class="transition-all duration-3000 bg-black text-white rounded-xl px-10 py-2 hover:bg-neutral-950 hidden"
                                 id="viewProgrammesBtn">Programmes
                                 <span class="bi bi-caret-right-fill ml-2"></span></button>
+                                <span class="text-white text-md p-2" id="noProgrammeFound">We’ve analyzed your results, and while you don't meet the current requirements for GCTU, this is simply a detour, not a dead end.</span>
 
                         </div>
                     </div>

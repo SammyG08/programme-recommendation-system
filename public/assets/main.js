@@ -202,24 +202,31 @@ document.addEventListener("DOMContentLoaded", function () {
             const response = await ajaxRequest("POST", url, data);
             updateStatus(true);
             document.body.style.overflowY = "auto";
-            if (response.statusCode === 808) {
-                slideRight(currentlyShowing, curatingContainer);
-                showProgress(step);
-                await updateSteps();
-                const progCont = document.getElementById(
-                    "viewProgrammesContainer"
-                );
-                progCont.classList.replace("opacity-0", "opacity-100");
-                progCont.classList.replace("scale-0", "scale-100");
-                localStorage.setItem(
-                    "recommendedProgrammes",
-                    JSON.stringify(response.data)
-                );
-            } else if (response.statusCode === 999) {
+            if (response.statusCode === 999) {
                 showErrMsgForThreeSecs("An unexpected error occurred: ");
+                return;
+            }
+
+            slideRight(currentlyShowing, curatingContainer);
+            showProgress(step);
+            await updateSteps();
+            const progCont = document.getElementById("viewProgrammesContainer");
+            progCont.classList.replace("opacity-0", "opacity-100");
+            progCont.classList.replace("scale-0", "scale-100");
+            localStorage.setItem(
+                "recommendedProgrammes",
+                JSON.stringify(response.data)
+            );
+            if (response.statusCode === 808) {
+                document
+                    .getElementById("viewProgrammesBtn")
+                    .classList.remove("hidden");
+                document
+                    .getElementById("noProgrammeFound")
+                    .classList.add("hidden");
+                return;
             }
         } catch (err) {
-            console.log("error in getting programmes");
             updateStatus(true);
             document.body.style.overflowY = "auto";
             showErrMsgForThreeSecs("An unexpected error occurred");
@@ -375,4 +382,3 @@ function showDropdown(el, faculty) {
         el.classList.add("rotate-up");
     }
 }
-

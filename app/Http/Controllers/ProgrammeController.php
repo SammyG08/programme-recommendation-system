@@ -175,39 +175,44 @@ class ProgrammeController extends Controller
     public function filterProgrammeBasedOnCoreGrade($subjectsWithBestGrades)
     {
         $coreQuery = CoreSubject::query();
+        // Log::info('Core subjects with best grades:', $subjectsWithBestGrades);
         $lowestGrade = array_last($subjectsWithBestGrades);
         $lowestGradeSubject = array_last(array_keys($subjectsWithBestGrades));
         $programmes = collect();
         if (isset($subjectsWithBestGrades['english']) && isset($subjectsWithBestGrades['mathematics'])) {
-            if (count($subjectsWithBestGrades) === 3) {
-                $coreModel = $coreQuery->where('english', '=', 'required')->where('mathematics', '=', 'required')->where($lowestGradeSubject, '=', 'required')->first();
+
+            $coreModel = CoreSubject::where('english', '=', 'required')->where('mathematics', '=', 'required')->where($lowestGradeSubject, '=', 'required')->first();
                 $programmes = Programme::where('core_subject_id', '=', $coreModel->id)->where('lowest_grade_for_cores', '>=', $lowestGrade)->get();
-            } elseif (count($subjectsWithBestGrades) === 4) {
-                $coreModel = null;
+            if (count($subjectsWithBestGrades) === 4) {
+                $cModel = null;
                 if ($lowestGradeSubject !== 'english' && $lowestGradeSubject !== 'mathematics') {
-                    $coreModel = $coreQuery->where($lowestGradeSubject, '=', 'not required')->first();
+                    $cModel = $coreQuery->where($lowestGradeSubject, '=', 'not required')->first();
                     $keys = array_keys($subjectsWithBestGrades);
                     $secondLowestSubject = $keys[count($keys) - 2];
                     $secondLowestGrade = $subjectsWithBestGrades[$secondLowestSubject];
-                    $programmes = Programme::where('core_subject_id', '=', $coreModel?->id)->where('lowest_grade_for_cores', '>=', $secondLowestGrade)->get();
+                    $altProgrammes = Programme::where('core_subject_id', '=', $cModel?->id)->where('lowest_grade_for_cores', '>=', $secondLowestGrade)->get();
+                    $programmes = $programmes->concat($altProgrammes);
                 } else {
-                    $coreModel = $coreQuery->where('social', '=', 'not required')->first();
-                    $programmes = Programme::where('core_subject_id', '=', $coreModel?->id)->where('lowest_grade_for_cores', '>=', $lowestGrade)->get();
+                    $cModel = $coreQuery->where('social', '=', 'not required')->first();
+                    $altProgrammes = Programme::where('core_subject_id', '=', $cModel?->id)->where('lowest_grade_for_cores', '>=', $lowestGrade)->get();
+                    $programmes = $programmes->concat($altProgrammes);
                 }
             }
         }
-        // Log::info('Programme found:', $programmes->toArray());
+        $programmes = $programmes->unique('id');
+        // Log::info('Programmes found:', $programmes->toArray());
         return $programmes;
     }
 
     public function elligibleProgrammesIds($electives, $faculty_name)
     {
         $idOfFacultyProgrammesUserCanOffer = [];
-        $lowestGrade = array_last($electives);
-        $keys = array_keys($electives);
-        $courseWithSecondLowestGrade = $keys[count($keys) - 2];
-        $secondLowestGrade = $electives[$courseWithSecondLowestGrade];
+        Log::info('Electives with best grades:', $electives);
         if (count($electives) >= 3 && count($electives) <= 4) {
+            $lowestGrade = array_last($electives);
+            $keys = array_keys($electives);
+            $courseWithSecondLowestGrade = $keys[count($keys) - 2];
+            $secondLowestGrade = $electives[$courseWithSecondLowestGrade];
             try {
                 $this->selectingElectivesEngine($idOfFacultyProgrammesUserCanOffer, $electives, $faculty_name, $lowestGrade);
                 if (count($electives) === 4) {
@@ -222,6 +227,7 @@ class ProgrammeController extends Controller
 
     private function selectingElectivesEngine(&$idOfFacultyProgrammesUserCanOffer, $electives, $faculty_name, $grade)
     {
+        // Log::info('Starting electives for matching: ', $electives);
         $seen = false;
         $faculty = null;
         try {
@@ -232,11 +238,13 @@ class ProgrammeController extends Controller
         $facultyProgrammes = $faculty->programmes()->where('lowest_grade_for_electives', '>=', $grade)->get();
         if ($facultyProgrammes->count()) {
             foreach ($facultyProgrammes as $facultyProgramme) {
+                $tempElectives = $electives;
                 $electiveSubject = ElectiveSubject::find($facultyProgramme->elective_subject_id);
                 $electiveSubjects = [$electiveSubject->elective_one, $electiveSubject->elective_two, $electiveSubject->elective_three];
                 $subjectsOccurence = array_count_values($electiveSubjects);
 
                 if (isset($subjectsOccurence['any']) || isset($subjectsOccurence['science-related subject'])) {
+                    // Log::info('Any or science-related subject found in electives requirements for programme id: ' . $facultyProgramme->id);
                     $seen = true;
                     $remainingElectives = array_keys(array_filter($subjectsOccurence, function ($value, $key) {
                         return $key !== 'any' && $key !== 'science-related subject';
@@ -246,9 +254,9 @@ class ProgrammeController extends Controller
                             $subjectArray = explode('|', $elective);
 
                             foreach ($subjectArray as $s) {
-                                if (in_array($s, array_keys($electives))) {
+                                if (in_array($s, array_keys($tempElectives))) {
                                     $seen = true;
-                                    unset($electives[$s]);
+                                    unset($tempElectives[$s]);
                                     break;
                                 }
                                 $seen = false;
@@ -257,13 +265,15 @@ class ProgrammeController extends Controller
                         }
                     }
                 } else {
+                    // Log::info('Specific electives found in electives requirements for programme id: ' . $facultyProgramme->id);
                     foreach ($electiveSubjects as $subject) {
                         $subjectArray = explode('|', $subject);
-
+                        Log::info('Checking subject options: ', $subjectArray);
                         foreach ($subjectArray as $s) {
-                            if (in_array($s, array_keys($electives))) {
+                            if (in_array($s, array_keys($tempElectives))) {
                                 $seen = true;
-                                unset($electives[$s]);
+                                unset($tempElectives[$s]);
+                                Log::info('Remaining electives after matching: ', $tempElectives);
                                 break;
                             }
                             $seen = false;

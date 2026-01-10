@@ -9,4 +9,9 @@ class ProgrammeType extends Model
 {
     use HasFactory;
     protected $fillable = ['type'];
+
+    public function programmes()
+    {
+        return $this->hasMany(Programme::class, 'programme_type_id');
+    }
 }

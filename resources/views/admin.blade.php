@@ -12,6 +12,8 @@
 
         @livewire('programme-add', ['electives' => $electives])
 
+        @livewire('programme-component')
+
 
     </div>
 @endsection

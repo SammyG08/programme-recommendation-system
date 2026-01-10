@@ -40,6 +40,11 @@ class Programme extends Model
         return $this->belongsTo(Grade::class, 'lowest_grade_for_electives');
     }
 
+    public function programmeType()
+    {
+        return $this->belongsTo(ProgrammeType::class, 'programme_type_id');
+    }
+
     public function addProgramme(String $programmeName, array $electives, array $cores, String $coreGrade, String $electiveGrade, ProgrammeType $type, Faculty $faculty)
     {
         array_walk(
@@ -81,5 +86,12 @@ class Programme extends Model
         } else {
             throw new Exception('Invalid grade for cores inserted');
         }
+    }
+
+    public function twoOrMoreProgrammesWithSameName()
+    {
+        $programmes = Programme::where('programme_name', '=', $this->programme_name)->get();
+        $value = $programmes->count() >= 2 ? true : false;
+        return $value;
     }
 }
