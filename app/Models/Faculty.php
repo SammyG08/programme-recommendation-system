@@ -14,4 +14,9 @@ class Faculty extends Model
     {
         return $this->hasMany(Programme::class);
     }
+
+    public function latestProgramme()
+    {
+        return $this->hasOne(Programme::class)->latestOfMany();
+    }
 }

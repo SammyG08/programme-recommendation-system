@@ -137,6 +137,16 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // const programmeAddModal = document.getElementById("programmeAddModal");
+    // if (programmeAddModal) {
+
+    //     const dashboardCardContainer = document.getElementById(
+    //         "dashboardCardContainer"
+    //     );
+    //     if (dashboardCardContainer)
+    //         dashboardCardContainer.classList.add("hidden");
+    // }
+
     function slideRight(currentContainer, nextContainer) {
         if (currentContainer) {
             currentContainer.classList.replace("showing", "hideCurrent");

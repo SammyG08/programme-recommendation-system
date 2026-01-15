@@ -1,9 +1,9 @@
-<div
-    class="{{ $showModal ? 'flex' : 'hidden' }} transition-all duration-500 flex-col justify-evenly items-start gap-5 w-full md:w-[70%] lg:w-full 2xl:w-[80%] h-full border border-blue-900 p-2 2xl:p-5 mt-20 2xl:mt-5 rounded-xl overflow-hidden">
+<div x-data = "{showModal: false}" x-show = "showModal" x-cloak x-on:modal-open.window ="showModal = true; $wire.set('facultyId', $event.detail.fid); $wire.resetSelections()" x-on:programme-added.window = "showModal = false" x-on:click.outside="showModal = false; $dispatch('modal-closed')"
+    class=" flex transition-all duration-500 flex-col justify-evenly items-start gap-5 w-full md:w-[70%] lg:w-full 2xl:w-[80%] h-full border border-blue-900 p-2 2xl:p-5 mt-20 2xl:mt-5 rounded-xl overflow-hidden">
     <div class="w-full flex items-center justify-end gap-5 p-2 2xl:p-0">
         <div class="flex items-center justify-center gap-5 w-full">
-            <h3 class="text-md md:text-lg font-bold text-white">{{ $faculty }}</h3>
-            <i class="bi bi-x-circle text-lg text-white transition-colors duration-300 hover:text-white/70"></i>
+            <h3 class="text-md md:text-lg font-bold text-white">{{ $this->getFaculty ? $this->getFaculty->faculty_name: 'Add Programme For: ' }}</h3>
+            {{-- @if($this->getFaculty)<i class="bi bi-x-circle text-lg text-white transition-colors duration-300 hover:text-white/70"></i>@endif --}}
         </div>
         <button class="px-2 bg-blue-500 rounded-lg transition-colors duration-400 hover:bg-blue-700 text-white"
             wire:click="saveProgramme"><span class="text-sm">Save</span></button>
@@ -18,8 +18,6 @@
             <option value=""selected hidden>Select programme type</option>
             <option value="Degree">Degree</option>
             <option value="Diploma">Diploma</option>
-            <option value="BSc. Business Administration Specializations">Business Administration Specializations
-            </option>
         </select>
     </div>
     <div class="flex flex-col w-full items-center justify-center bg-gray-900 p-2 2xl:p-5 rounded-xl gap-7">
@@ -117,7 +115,7 @@
 
     </div>
 
-    <div class="flex lg:flex-row flex-col items-start justify-center gap-3 w-full bg-gray-900 p-2 2xl:p-5 rounded-xl">
+    {{-- <div class="flex lg:flex-row flex-col items-start justify-center gap-3 w-full bg-gray-900 p-2 2xl:p-5 rounded-xl">
         <form action="" class="">
             <select wire:model="minimumCoreGrade" class="bg-black rounded-lg px-3 py-4 text-white w-full lg:w-auto"
                 value="{{ $minimumCoreGrade }}">
@@ -150,5 +148,5 @@
                 <option value="F9">F9</option>
             </select>
         </form>
-    </div>
+    </div> --}}
 </div>

@@ -7,6 +7,12 @@
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 
+    <style>
+        [x-cloak]{
+            display:none !important;
+        }
+    </style>
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
@@ -16,10 +22,12 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    @livewireStyles
 </head>
 
 <body>
     @yield('content')
+    @livewireScripts
     <script src="{{ asset('assets/main.js') }}"></script>
 </body>
 
