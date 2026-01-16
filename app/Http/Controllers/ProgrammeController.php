@@ -99,15 +99,14 @@ class ProgrammeController extends Controller
     }
     private function getProgrammesFromId($programmesIdArray)
     {
-        $emptyProgrammes = [];
-        if ($programmesIdArray) {
-            $filledProgrammes = Programme::whereIn('id', $programmesIdArray)
+        if (empty($programmesIdArray)) return [];
+
+        $programme_names = Programme::whereIn('id', $programmesIdArray)
+            ->distinct()
                 ->pluck('programme_name')
                 ->toArray();
-            Log::info("Programme names: ", $filledProgrammes);
-            return $filledProgrammes;
-        }
-        return $emptyProgrammes;
+        Log::info("Programme names: ", $programme_names);
+        return $programme_names;
     }
     public function processCoreResults(Request $request)
     {

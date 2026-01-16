@@ -7,6 +7,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 "uploadResultsContainer"
             );
             slideRight(currentlyShowing, uploadResultsContainer);
+            // setTimeout(() => changeBg("/assets/images/gctu2.jpg"), 1000);
+            // changeBg("/assets/images/gctu2.jpg");
         });
     }
     const firstNextBtn = document.getElementById("firstNextBtn");
@@ -34,6 +36,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     slideRight(currentlyShowing, electiveSubjectsContainer);
                     showProgress(currentStep);
                     currentStep++;
+                    document
+                        .getElementById("logo")
+                        .classList.replace("slideDown", "slideUp");
                 } else {
                     updateStatus(true);
                     document.body.style.overflowY = "auto";
@@ -98,6 +103,7 @@ document.addEventListener("DOMContentLoaded", function () {
             );
             callToAction.classList.replace("hideCurrent", "showing");
             uploadResultsContainer.classList.replace("showing", "hide");
+            // setTimeout(() => changeBg("/assets/images/gctu6.jpg"), 1000);
         });
     }
 
@@ -114,6 +120,16 @@ document.addEventListener("DOMContentLoaded", function () {
                 currentlyShowing.classList.replace("showing", "hide");
                 recentlyHidden.classList.replace("hideCurrent", "showing");
                 showProgress(currentStep, true);
+                // setTimeout(
+                //     () =>
+                //         document
+                //             .getElementById("logo")
+                //             .classList.replace("slideUp", "slideDown"),
+                //     500
+                // );
+                document
+                    .getElementById("logo")
+                    .classList.replace("slideUp", "slideDown");
             }
         });
     }
@@ -132,20 +148,58 @@ document.addEventListener("DOMContentLoaded", function () {
         );
         const resultsContainer = document.getElementById("resultsContainer");
         viewProgrammesBtn.addEventListener("click", () => {
-            zoomIn(uploadResultsContainer, resultsContainer);
+            viewProgrammesBtn.classList.add("translate-x-400");
+            setTimeout(() => changeBg("/assets/images/gctu3.jpg"), 100);
+            setTimeout(
+                () => zoomIn(uploadResultsContainer, resultsContainer),
+                300
+            );
             populateProgrammesRecommended();
         });
     }
 
-    // const programmeAddModal = document.getElementById("programmeAddModal");
-    // if (programmeAddModal) {
+    const loginBtn = document.getElementById("submitBtn");
+    if (loginBtn) {
+        loginBtn.addEventListener("click", async function () {
+            const loginForm = document.getElementById("loginForm");
+            const data = Object.fromEntries(new FormData(loginForm).entries());
+            const loadingBarWrapper =
+                document.getElementById("loadingBarWrapper");
+            loadingBarWrapper.classList.remove("hidden");
+            const pForErr = document.getElementById("errorMsgP");
+            try {
+                const response = await ajaxRequest(
+                    "POST",
+                    loginForm.dataset.url,
+                    data
+                );
+                if (response.status === 808) {
+                    window.location.replace(response.redirect_url);
+                    loadingBarWrapper.classList.add("hidden");
+                } else if (response.status === 999) {
+                    loadingBarWrapper.classList.add("hidden");
+                    pForErr.textContent = response.err;
+                    setTimeout(() => (pForErr.textContent = ""), 5000);
+                }
+            } catch (err) {
+                loadingBarWrapper.classList.add("hidden");
+                pForErr.textContent = err;
+                setTimeout(() => (pForErr.textContent = ""), 5000);
+            }
+        });
+    }
 
-    //     const dashboardCardContainer = document.getElementById(
-    //         "dashboardCardContainer"
-    //     );
-    //     if (dashboardCardContainer)
-    //         dashboardCardContainer.classList.add("hidden");
-    // }
+    function changeBg(path) {
+        const el = document.getElementById("first");
+
+        el.style.transition = "transform 0.4s ease";
+        el.style.transform = "scale(0.999)";
+
+        setTimeout(() => {
+            el.style.backgroundImage = `url(${path})`;
+            el.style.transform = "scale(1)";
+        }, 400);
+    }
 
     function slideRight(currentContainer, nextContainer) {
         if (currentContainer) {
@@ -285,7 +339,7 @@ document.addEventListener("DOMContentLoaded", function () {
             for (const faculty in programmes) {
                 const div = document.createElement("div");
                 div.classList.add(
-                    "bg-neutral-950",
+                    "bg-blue-950",
                     "transition-all",
                     "duration-500",
                     "w-full",
@@ -325,7 +379,7 @@ document.addEventListener("DOMContentLoaded", function () {
             "justify-start",
             "gap-5",
             "p-5",
-            "bg-black",
+            "bg-black/15",
             "w-full",
             "rounded-xl",
             "slideUp",

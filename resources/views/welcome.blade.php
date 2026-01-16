@@ -1,7 +1,7 @@
 @extends('layout.base')
 @section('content')
-    <div class="w-full max-w-screen h-full relative overflow-x-hidden flex min-h-screen bg-black">
-        <div class="bg-black w-full flex flex-col items-center justify-center min-h-screen py-4 2xl:p-0 min-[320px]:p-7 showing gap-20"
+    <div class="w-full max-w-screen h-full relative overflow-x-hidden flex min-h-screen" id="first">
+        <div class="bg-black/60 backdrop-blur-md w-full flex flex-col items-center justify-center min-h-screen py-4 2xl:p-0 min-[320px]:p-7 showing gap-20"
             id="callToAction">
             <div
                 class="text-white font-bold lg:max-w-[70%] 2xl:max-w-[50%] w-full flex flex-col justify-center items-start p-5 min-[320px]:p-10 2xl:text-justify">
@@ -18,7 +18,7 @@
                     WASSCE examinations</p>
             </div>
             <div
-                class="flex flex-col sm:flex-row text-white rounded-3xl lg:max-w-[70%] 2xl:max-w-[50%] w-full p-5 min-[320px]:p-10 justify-between gap-10 bg-neutral-950">
+                class="flex flex-col sm:flex-row text-white rounded-3xl lg:max-w-[70%] 2xl:max-w-[50%] w-full p-5 min-[320px]:p-10 justify-between gap-10 bg-black/20">
                 <button class="w-full bg-blue-500 rounded-3xl px-10 py-2 animate-scale" id="getStartedBtn"><span
                         class="bi bi-mortarboard mr-2"></span>Get
                     Started</button>
@@ -27,9 +27,12 @@
             </div>
         </div>
 
-        <div class="bg-black w-full flex flex-col items-center justify-start 2xl:justify-start min-h-screen py-4 2xl:p-0 min-[320px]:p-7 hide overflow-hidden h-full sm:h-auto"
+        <div class="bg-black/60 backdrop-blur-lg w-full flex flex-col items-center justify-start 2xl:justify-start min-h-screen py-4 2xl:p-0 min-[320px]:p-7 hide overflow-hidden h-full sm:h-auto"
             id="uploadResultsContainer">
             <div class="w-full lg:max-w-2xl mx-auto my-20">
+                <div class="w-full flex items-center justify-center mb-5 transition-all duration-500 slideDown fixed top-0 inset-x-0" id="logo">
+                    <img src="{{ asset('assets/images/gctu4.jpg') }}" alt="" class="w-auto h-20 rounded-2xl">
+                </div>
                 <div class="relative flex items-center justify-between">
                     <!-- Step 1 -->
                     <div class="relative">
@@ -77,7 +80,7 @@
                         </p>
                     </div>
                     <div
-                        class="flex flex-col text-white 2xl:rounded-3xl lg:max-w-[70%] 2xl:max-w-[50%] w-full p-5 min-[320px]:p-10 justify-between items-end gap-10 bg-neutral-950">
+                        class="flex flex-col text-white 2xl:rounded-3xl lg:max-w-[70%] 2xl:max-w-[50%] w-full p-5 min-[320px]:p-10 justify-between items-end gap-10 bg-neutral-950/20">
                         <form
                             class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 2xl:grid-cols-4 w-full gap-5 2xl:gap-0"
                             id="coreResults" method="POST" data-url="{{ route('validate-core-input') }}">
@@ -105,7 +108,7 @@
 
                         </form>
                         <div
-                            class="flex flex-col lg:flex-row text-white rounded-3xl w-full justify-between gap-10 bg-neutral-950">
+                            class="flex flex-col lg:flex-row text-white rounded-3xl w-full justify-between gap-10 bg-neutral-900 backdrop-blur-2xl">
                             <button
                                 class=" border border-white transition-all duration-300 bg-transparent hover:scale-102 rounded-3xl px-10 py-2"
                                 id="homeBtn">
@@ -134,7 +137,7 @@
                     <div
                         class="flex flex-col text-white 2xl:rounded-3xl lg:max-w-[70%] 2xl:max-w-[50%] w-full p-5 min-[320px]:p-10 justify-between items-end gap-10">
                         <form id="electiveResults"
-                            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 w-full gap-10"
+                            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 w-full gap-10 bg-black/25"
                             method="post" data-url="{{ route('validate-electives-input') }}">
                             @csrf
                             <x-elective-details-component header="Elective Details" name="electiveOne"
@@ -147,7 +150,7 @@
                                 className="electiveSelect" selectName="electiveFourGrade" :electives="$electives" />
                         </form>
                         <div
-                            class="flex flex-col lg:flex-row text-white rounded-3xl w-full justify-between gap-10 bg-neutral-950 p-1">
+                            class="flex flex-col lg:flex-row text-white rounded-3xl w-full justify-between gap-10 bg-neutral-900 backdrop-blur-2xl p-1">
                             <button
                                 class=" border border-white transition-all duration-300 bg-transparent hover:scale-102 rounded-3xl px-10 py-2"
                                 id="backBtn">
@@ -167,7 +170,7 @@
                         class=" text-white font-bold lg:max-w-[70%] 2xl:max-w-[50%] w-full flex flex-col justify-between items-center p-5 lg:p-10 2xl:text-justify gap-5">
                         <div class="flex flex-col items-start gap-4 w-full">
                             <div
-                                class="flex w-full justify-center bg-neutral-900/25 mb-7 p-5 gap-2 text-md md:text-2xl items-center rounded-xl relative">
+                                class="flex w-full justify-center bg-neutral-900/30 mb-7 p-5 gap-2 text-md md:text-2xl items-center rounded-xl relative border border-blue-500">
                                 <i class="bi bi-cpu-fill"></i>
                                 <h1 class="">Curating Eligible Programmes</h1>
                                 {{-- <div class="rounded-xl absolute -top-3 right-0 p-2 bg-blue-500/50 text-xs">processing</div> --}}
@@ -182,31 +185,31 @@
                                 during the process</p>
                         </div>
                         <div
-                            class="flex flex-col items-start gap-5 w-full bg-neutral-900 rounded-xl shadow shadow-white">
+                            class="flex flex-col items-start gap-5 w-full bg-black/25 rounded-xl shadow-md shadow-blue-950">
                             <ul class="list-disc list-inside p-2 w-full flex flex-col gap-3">
-                                <li class="flex gap-2 w-full bg-black p-5 rounded-xl transition-colors duration-100">
+                                <li class="flex gap-2 w-full bg-black/30 p-5 rounded-xl transition-colors duration-100 border border-blue-950">
                                     <span class="step bi bi-check-circle-fill"></span><span class="">Checking
                                         results</span>
                                 </li>
-                                <li class="flex gap-2 w-full bg-black p-5 rounded-xl transition-colors duration-100">
+                                <li class="flex gap-2 w-full bg-black/30 p-5 rounded-xl transition-colors duration-100 border border-blue-950">
                                     <span class="step bi bi-check-circle-fill"></span><span class="">Matching
                                         programmes</span>
                                 </li>
-                                <li class="flex gap-2 w-full bg-black p-5 rounded-xl transition-colors duration-100">
+                                <li class="flex gap-2 w-full bg-black/30 p-5 rounded-xl transition-colors duration-100 border border-blue-950">
                                     <span class="step bi bi-check-circle-fill"></span><span class="">Filtering
                                         programmes </span>
                                 </li>
-                                <li class="flex gap-2 w-full bg-black p-5 rounded-xl transition-colors duration-100">
+                                <li class="flex gap-2 w-full bg-black/30 p-5 rounded-xl transition-colors duration-100 border border-blue-950">
                                     <span class="step bi bi-check-circle-fill"></span><span class="">Compiling
                                         programmes</span>
                                 </li>
 
                             </ul>
                         </div>
-                        <div class="flex justify-center items-start flex-col w-full rounded-xl bg-neutral-900 mt-5 relative overflow-hidden transition-all duration-300 scale-0 opacity-0 "
+                        <div class="flex justify-center items-start flex-col w-full rounded-xl bg-black/10 backdrop-blur-2xl mt-5 relative overflow-hidden transition-all duration-300 scale-0 opacity-0 border border-blue-950"
                             id="viewProgrammesContainer">
                             <button
-                                class="transition-all duration-3000 bg-black text-white rounded-xl px-10 py-2 hover:bg-neutral-950 hidden"
+                                class="transition-all duration-1000 bg-blue-950 text-white rounded-xl px-10 py-2 hover:bg-blue-900 hidden"
                                 id="viewProgrammesBtn">Programmes
                                 <span class="bi bi-caret-right-fill ml-2"></span></button>
                                 <span class="text-white text-md p-2" id="noProgrammeFound">We’ve analyzed your results, and while you don't meet the current requirements for GCTU, this is simply a detour, not a dead end.</span>
@@ -221,12 +224,12 @@
 
         </div>
 
-        <div class="class bg-black w-full h-full flex flex-col items-center justify-center min-h-screen py-20 min-[320px]:px-7 zoomOut"
+        <div class="class bg-black/60 backdrop-blur-md w-full h-full flex flex-col items-center justify-center min-h-screen py-20 min-[320px]:px-7 zoomOut"
             id="resultsContainer">
             <div
                 class="text-white font-bold lg:max-w-[70%] 2xl:max-w-[50%] w-full flex flex-col justify-center items-start p-5 min-[320px]:p-10 2xl:text-justify border border-white/50 bg-white/5 rounded-xl">
                 <div
-                    class="flex justify-center w-full p-5 text-xl md:text-5xl bg-black text-white rounded-xl -translate-y-20 border animate-border">
+                    class="flex justify-center w-full p-5 text-xl md:text-5xl bg-blue-950 text-white rounded-xl -translate-y-20 border animate-border">
                     <i class="bi bi-mortarboard"></i>
                 </div>
                 <h1 class="text-xl md:text-3xl mb-7 -mt-10">

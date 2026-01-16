@@ -87,11 +87,12 @@ class ProgrammeAdd extends Component
                 $this->dispatch('programme-added', id: $this->facultyId);
             } catch (Exception $e) {
                 session()->flash('error', $e->getMessage());
-                dd($e->getMessage());
+                $this->dispatch('adding-programme-error');
             }
         } else {
             session()->flash('error', 'Please fill all fields from each category.');
-            dd('Please fill all fields from each category.');
+            // dd('Please fill all fields from each category.');
+            $this->dispatch('adding-programme-error');
         }
     }
 

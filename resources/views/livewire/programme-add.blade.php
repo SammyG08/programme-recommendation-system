@@ -1,12 +1,35 @@
-<div x-data = "{showModal: false}" x-show = "showModal" x-cloak x-on:modal-open.window ="showModal = true; $wire.set('facultyId', $event.detail.fid); $wire.resetSelections()" x-on:programme-added.window = "showModal = false" x-on:click.outside="showModal = false; $dispatch('modal-closed')"
-    class=" flex transition-all duration-500 flex-col justify-evenly items-start gap-5 w-full md:w-[70%] lg:w-full 2xl:w-[80%] h-full border border-blue-900 p-2 2xl:p-5 mt-20 2xl:mt-5 rounded-xl overflow-hidden">
+<div x-data = "{showModal: false, saving:false, error:false}" x-show = "showModal" x-cloak
+    x-on:modal-open.window ="showModal = true; $wire.set('facultyId', $event.detail.fid); $wire.resetSelections()"
+    x-on:programme-added.window = "showModal = false" x-on:click.outside="showModal = false; $dispatch('modal-closed')"
+    x-on:saving.window="saving = true"
+    :class="saving ? 'opacity-50 pointer-events-none' : 'opacity-100 pointer-events-auto'"
+    x-on:adding-programme-error.window="saving = false"
+    class="relative flex transition-all duration-500 flex-col justify-evenly items-start gap-5 w-full md:w-[70%] lg:w-full 2xl:w-[80%] h-full border border-blue-900 p-2 2xl:p-5 mt-20 2xl:mt-5 rounded-xl overflow-hidden">
+    <div x-show="saving" x-cloak class="h-1 bg-white/20 absolute top-0 right-10 left-10 overflow-hidden"
+        x-on:saving.window="saving=true">
+        <div class="h-1 bg-blue-500/50 w-50" id="loadingBar"></div>
+    </div>
+
+
+    <div x-data="{ showError: false }" x-show="showError" x-cloak
+        x-on:adding-programme-error.window="showError=true; setTimeout(() => showError = false, 3000)"
+        x-transition.opacity.duration.500ms
+        class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80 h-full w-full">
+
+        <div class=" bg-neutral-800 p-5 rounded-xl">
+            <span class="text-sm text-white">{{ session('error') }}</span>
+        </div>
+    </div>
+
+
     <div class="w-full flex items-center justify-end gap-5 p-2 2xl:p-0">
         <div class="flex items-center justify-center gap-5 w-full">
-            <h3 class="text-md md:text-lg font-bold text-white">{{ $this->getFaculty ? $this->getFaculty->faculty_name: 'Add Programme For: ' }}</h3>
-            {{-- @if($this->getFaculty)<i class="bi bi-x-circle text-lg text-white transition-colors duration-300 hover:text-white/70"></i>@endif --}}
+            <h3 class="text-md md:text-lg font-bold text-white">
+                {{ $this->getFaculty ? $this->getFaculty->faculty_name : 'Add Programme For: ' }}</h3>
+            {{-- @if ($this->getFaculty)<i class="bi bi-x-circle text-lg text-white transition-colors duration-300 hover:text-white/70"></i>@endif --}}
         </div>
-        <button class="px-2 bg-blue-500 rounded-lg transition-colors duration-400 hover:bg-blue-700 text-white"
-            wire:click="saveProgramme"><span class="text-sm">Save</span></button>
+        <button class="px-2 bg-blue-500 rounded-lg transition-colors duration-400 hover:bg-blue-700 text-white" x-data
+            x-on:click="$dispatch('saving')" wire:click="saveProgramme"><span class="text-sm">Save</span></button>
     </div>
     <div class="flex lg:flex-row flex-col w-full items-center justify-center bg-gray-900 p-2 2xl:p-5 rounded-xl gap-10">
         <input type="text" wire:model="programme_name"
