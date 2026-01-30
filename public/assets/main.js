@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     currentStep++;
                     document
                         .getElementById("logo")
-                        .classList.replace("slideDown", "slideUp");
+                        .classList.replace("zoomIn", "zoomOut");
                 } else {
                     updateStatus(true);
                     document.body.style.overflowY = "auto";
@@ -129,7 +129,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 // );
                 document
                     .getElementById("logo")
-                    .classList.replace("slideUp", "slideDown");
+                    .classList.replace("zoomOut", "zoomIn");
             }
         });
     }

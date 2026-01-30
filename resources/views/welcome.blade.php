@@ -18,7 +18,7 @@
                     WASSCE examinations</p>
             </div>
             <div
-                class="flex flex-col sm:flex-row text-white rounded-3xl lg:max-w-[70%] 2xl:max-w-[50%] w-full p-5 min-[320px]:p-10 justify-between gap-10 bg-black/20">
+                class="flex flex-col sm:flex-row text-white rounded-3xl lg:max-w-[70%] 2xl:max-w-[50%] w-full p-5 min-[320px]:p-10 justify-between gap-10 bg-black/20 border-2 border-blue-950">
                 <button class="w-full bg-blue-500 rounded-3xl px-10 py-2 animate-scale" id="getStartedBtn"><span
                         class="bi bi-mortarboard mr-2"></span>Get
                     Started</button>
@@ -30,7 +30,7 @@
         <div class="bg-black/60 backdrop-blur-lg w-full flex flex-col items-center justify-start 2xl:justify-start min-h-screen py-4 2xl:p-0 min-[320px]:p-7 hide overflow-hidden h-full sm:h-auto"
             id="uploadResultsContainer">
             <div class="w-full lg:max-w-2xl mx-auto my-20">
-                <div class="w-full flex items-center justify-center mb-5 transition-all duration-500 slideDown fixed top-0 inset-x-0" id="logo">
+                <div class="w-full flex items-center justify-center mb-5 transition-all duration-1000 zoomIn fixed top-0 inset-x-0" id="logo">
                     <img src="{{ asset('assets/images/gctu4.jpg') }}" alt="" class="w-auto h-20 rounded-2xl">
                 </div>
                 <div class="relative flex items-center justify-between">
@@ -80,7 +80,7 @@
                         </p>
                     </div>
                     <div
-                        class="flex flex-col text-white 2xl:rounded-3xl lg:max-w-[70%] 2xl:max-w-[50%] w-full p-5 min-[320px]:p-10 justify-between items-end gap-10 bg-neutral-950/20">
+                        class="flex flex-col text-white 2xl:rounded-3xl lg:max-w-[70%] 2xl:max-w-[50%] w-full p-5 min-[320px]:p-10 justify-between items-end gap-10 bg-neutral-950/20 border-2 border-blue-950">
                         <form
                             class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 2xl:grid-cols-4 w-full gap-5 2xl:gap-0"
                             id="coreResults" method="POST" data-url="{{ route('validate-core-input') }}">
@@ -108,9 +108,9 @@
 
                         </form>
                         <div
-                            class="flex flex-col lg:flex-row text-white rounded-3xl w-full justify-between gap-10 bg-neutral-900 backdrop-blur-2xl">
+                            class="flex flex-col lg:flex-row text-white rounded-3xl w-full justify-between gap-10 bg-gray-950/30">
                             <button
-                                class=" border border-white transition-all duration-300 bg-transparent hover:scale-102 rounded-3xl px-10 py-2"
+                                class=" border border-white transition-all duration-300 bg-transparent hover:scale-101 rounded-3xl px-10 py-2"
                                 id="homeBtn">
                                 <span class="bi bi-arrow-left mr-2"></span>Go back</button>
                             <button
@@ -137,7 +137,7 @@
                     <div
                         class="flex flex-col text-white 2xl:rounded-3xl lg:max-w-[70%] 2xl:max-w-[50%] w-full p-5 min-[320px]:p-10 justify-between items-end gap-10">
                         <form id="electiveResults"
-                            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 w-full gap-10 bg-black/25"
+                            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 w-full gap-10 bg-black/25 2xl:rounded-xl"
                             method="post" data-url="{{ route('validate-electives-input') }}">
                             @csrf
                             <x-elective-details-component header="Elective Details" name="electiveOne"

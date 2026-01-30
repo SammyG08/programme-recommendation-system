@@ -18,7 +18,9 @@ use Illuminate\Validation\ValidationException;;
 class ProgrammeController extends Controller
 {
 
-    // private $gradeMap = ['A1 - C6' => 'credit', 'D7' => 'pass'];
+
+    private $aggregate = 0;
+    private $gotElectivesAggregate = false;
 
     public function validateCoreInput(Request $request)
     {
@@ -51,7 +53,7 @@ class ProgrammeController extends Controller
 
     public function programmesRecommended(Request $request, int $step = 1)
     {
-        Log::info('Processing programme recommendation request');
+        // Log::info('Processing programme recommendation request');
         try {
             $elligibleProgrammesIdBasedOnCores = $this->processCoreResults($request);
             $focisProgrammesUserElligibleToStudyBasedOnElectives = $this->processElectiveResults($request, 'Faculty of Computing & Information Systems');
@@ -74,9 +76,10 @@ class ProgrammeController extends Controller
             $data = $this->filterEmptyProgrammesOut($data);
             $returnInfo = count($data) ?
                 response()->json(['statusCode' => 808, 'data' => $data]) : response()->json(['statusCode' => 444]);
+            Log::info('aggregate scored : ' . $this->aggregate);
             return $returnInfo;
         } catch (Exception $e) {
-            Log::info('Error encountered: ' . $e);
+            // Log::info('Error encountered: ' . $e);
             return response()->json(['statusCode' => 999, 'msg' => $e->getMessage()]);
         }
     }
@@ -178,6 +181,7 @@ class ProgrammeController extends Controller
         $lowestGrade = array_last($subjectsWithBestGrades);
         $lowestGradeSubject = array_last(array_keys($subjectsWithBestGrades));
         $programmes = collect();
+        $this->calculateAggregate(array_values($subjectsWithBestGrades));
         if (isset($subjectsWithBestGrades['english']) && isset($subjectsWithBestGrades['mathematics'])) {
 
             $coreModel = CoreSubject::where('english', '=', 'required')->where('mathematics', '=', 'required')->where($lowestGradeSubject, '=', 'required')->first();
@@ -203,12 +207,26 @@ class ProgrammeController extends Controller
         return $programmes;
     }
 
+    private function calculateAggregate($subjects)
+    {
+
+        foreach ($subjects as $idx => $grade) {
+            if ($idx < 3) {
+                $g = (int)substr($grade, -1, 1);
+                $this->aggregate += $g;
+                Log::info($g);
+            }
+        }
+    }
+
     public function elligibleProgrammesIds($electives, $faculty_name)
     {
         $idOfFacultyProgrammesUserCanOffer = [];
-        Log::info('Electives with best grades:', $electives);
+        // Log::info('Electives with best grades:', $electives);
         if (count($electives) >= 3 && count($electives) <= 4) {
             $lowestGrade = array_last($electives);
+            if (!$this->gotElectivesAggregate) $this->calculateAggregate(array_values($electives));
+            $this->gotElectivesAggregate = true;
             $keys = array_keys($electives);
             $courseWithSecondLowestGrade = $keys[count($keys) - 2];
             $secondLowestGrade = $electives[$courseWithSecondLowestGrade];
@@ -267,12 +285,12 @@ class ProgrammeController extends Controller
                     // Log::info('Specific electives found in electives requirements for programme id: ' . $facultyProgramme->id);
                     foreach ($electiveSubjects as $subject) {
                         $subjectArray = explode('|', $subject);
-                        Log::info('Checking subject options: ', $subjectArray);
+                        // Log::info('Checking subject options: ', $subjectArray);
                         foreach ($subjectArray as $s) {
                             if (in_array($s, array_keys($tempElectives))) {
                                 $seen = true;
                                 unset($tempElectives[$s]);
-                                Log::info('Remaining electives after matching: ', $tempElectives);
+                                // Log::info('Remaining electives after matching: ', $tempElectives);
                                 break;
                             }
                             $seen = false;

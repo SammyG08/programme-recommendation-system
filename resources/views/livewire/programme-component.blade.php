@@ -1,6 +1,6 @@
-<div class="flex flex-col gap-4 items-start justify-start md:w-[70%] lg:w-full 2xl:w-[80%] w-full mt-20 2xl:mt-5" x-cloak
+<div class="flex flex-col gap-4 items-start justify-start w-full mt-20 2xl:mt-5 bg-black rounded-xl" x-cloak
     x-data="{ showing: true }" x-on:modal-open.window="showing = false" x-show="showing"
-    x-on:modal-closed.window="showing = true" x-on:programme-added.window="$wire.$refresh(); showing=true">
+    x-on:modal-closed.window="showing = true" x-on:programme-added.window="$wire.$refresh(); showing=true" x-on:upload-done.window="$wire.$refresh()">
     @if (!$selectedProgrammeId)
         <div class="transition-all duration-500 flex-col justify-evenly items-start gap-5 w-full h-full border border-blue-900 p-2 2xl:p-5  rounded-xl"
             wire:key="programme-list">
@@ -24,6 +24,9 @@
                                 Programme Name
                             </th>
                             <th class="px-6 py-3 whitespace-nowrap">
+                                Duration
+                            </th>
+                            <th class="px-6 py-3 whitespace-nowrap">
                                 Faculty
                             </th>
                             <th class="px-6 py-3 whitespace-nowrap">
@@ -44,6 +47,9 @@
                                 <td class="text-xs lg:text-sm px-6 py-4 cursor-default whitespace-nowrap">
                                     {{ $programme->programme_name }}
                                 </td>
+                                <td class="text-xs lg:text-sm px-6 py-4 cursor-default whitespace-nowrap">
+                                    {{ $programme->programmeDuration() }} Years
+                                </td>
                                 <td class="text-xs px-6 lg:text-sm py-4 cursor-default whitespace-nowrap">
                                     {{ $programme->faculty->faculty_name }}
                                 </td>
@@ -59,7 +65,7 @@
                 </table>
 
             </div>
-            <div class="w-full bg-gray-900/15 px-2 mt-3">
+            <div class="w-full bg-gray-900 pl-2 mt-3">
                 {{ $programmes->links() }}
 
             </div>
