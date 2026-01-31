@@ -137,7 +137,7 @@
                     <div
                         class="flex flex-col text-white 2xl:rounded-3xl lg:max-w-[70%] 2xl:max-w-[50%] w-full p-5 min-[320px]:p-10 justify-between items-end gap-10">
                         <form id="electiveResults"
-                            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 w-full gap-10 bg-black/25 2xl:rounded-xl"
+                            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 w-full gap-10 bg-black/25 2xl:rounded-xl p-2"
                             method="post" data-url="{{ route('validate-electives-input') }}">
                             @csrf
                             <x-elective-details-component header="Elective Details" name="electiveOne"
@@ -150,11 +150,11 @@
                                 className="electiveSelect" selectName="electiveFourGrade" :electives="$electives" />
                         </form>
                         <div
-                            class="flex flex-col lg:flex-row text-white rounded-3xl w-full justify-between gap-10 bg-neutral-900 backdrop-blur-2xl p-1">
-                            <button
+                            class="flex flex-col lg:flex-row text-white rounded-3xl w-full justify-end gap-10 bg-black/30 border-2 border-blue-950 p-1">
+                            {{-- <button
                                 class=" border border-white transition-all duration-300 bg-transparent hover:scale-102 rounded-3xl px-10 py-2"
                                 id="backBtn">
-                                <span class="bi bi-arrow-left mr-2"></span>Go back</button>
+                                <span class="bi bi-arrow-left mr-2"></span>Go back</button> --}}
                             <button
                                 class="transition-all duration-300 bg-blue-500 rounded-3xl px-10 py-2 hover:bg-blue-700"
                                 id="secondNextBtn">Next
@@ -173,12 +173,8 @@
                                 class="flex w-full justify-center bg-neutral-900/30 mb-7 p-5 gap-2 text-md md:text-2xl items-center rounded-xl relative border border-blue-500">
                                 <i class="bi bi-cpu-fill"></i>
                                 <h1 class="">Curating Eligible Programmes</h1>
-                                {{-- <div class="rounded-xl absolute -top-3 right-0 p-2 bg-blue-500/50 text-xs">processing</div> --}}
                             </div>
-                            {{-- <p class="text-normal text-md md:text-xl w-full mb-3">
-                                We are curating a list of programmes you are eligible to study at
-                                Ghana Communication Technology University.
-                            </p> --}}
+                            
                             <p class="text-normal text-sm md:text-md w-full text-red-500"><i
                                     class="bi bi-exclamation-triangle-fill mr-2"></i>Please do not
                                 leave this page
@@ -188,19 +184,19 @@
                             class="flex flex-col items-start gap-5 w-full bg-black/25 rounded-xl shadow-md shadow-blue-950">
                             <ul class="list-disc list-inside p-2 w-full flex flex-col gap-3">
                                 <li class="flex gap-2 w-full bg-black/30 p-5 rounded-xl transition-colors duration-100 border border-blue-950">
-                                    <span class="step bi bi-check-circle-fill"></span><span class="">Checking
+                                    <span class="step1 bi bi-check-circle-fill"></span><span class="">Checking
                                         results</span>
                                 </li>
                                 <li class="flex gap-2 w-full bg-black/30 p-5 rounded-xl transition-colors duration-100 border border-blue-950">
-                                    <span class="step bi bi-check-circle-fill"></span><span class="">Matching
+                                    <span class="step2 bi bi-check-circle-fill"></span><span class="">Matching
                                         programmes</span>
                                 </li>
                                 <li class="flex gap-2 w-full bg-black/30 p-5 rounded-xl transition-colors duration-100 border border-blue-950">
-                                    <span class="step bi bi-check-circle-fill"></span><span class="">Filtering
+                                    <span class="step3 bi bi-check-circle-fill"></span><span class="">Filtering
                                         programmes </span>
                                 </li>
                                 <li class="flex gap-2 w-full bg-black/30 p-5 rounded-xl transition-colors duration-100 border border-blue-950">
-                                    <span class="step bi bi-check-circle-fill"></span><span class="">Compiling
+                                    <span class="step4 bi bi-check-circle-fill"></span><span class="">Compiling
                                         programmes</span>
                                 </li>
 
@@ -229,7 +225,7 @@
             <div
                 class="text-white font-bold lg:max-w-[70%] 2xl:max-w-[50%] w-full flex flex-col justify-center items-start p-5 min-[320px]:p-10 2xl:text-justify border border-white/50 bg-white/5 rounded-xl">
                 <div
-                    class="flex justify-center w-full p-5 text-xl md:text-5xl bg-blue-950 text-white rounded-xl -translate-y-20 border animate-border">
+                    class="flex gap-2 justify-center items-center w-full p-5 text-xl md:text-5xl bg-blue-950 text-white rounded-xl -translate-y-20 border animate-border" id="aggContainer">
                     <i class="bi bi-mortarboard"></i>
                 </div>
                 <h1 class="text-xl md:text-3xl mb-7 -mt-10">

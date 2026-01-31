@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
         getStartedBtn.addEventListener("click", function () {
             const currentlyShowing = document.querySelector("#callToAction");
             const uploadResultsContainer = document.getElementById(
-                "uploadResultsContainer"
+                "uploadResultsContainer",
             );
             slideRight(currentlyShowing, uploadResultsContainer);
             // setTimeout(() => changeBg("/assets/images/gctu2.jpg"), 1000);
@@ -16,10 +16,10 @@ document.addEventListener("DOMContentLoaded", function () {
         firstNextBtn.addEventListener("click", async function () {
             let currentStep = 1;
             const currentlyShowing = document.querySelector(
-                "#coreSubjectsContainer"
+                "#coreSubjectsContainer",
             );
             const electiveSubjectsContainer = document.getElementById(
-                "electiveSubjectsContainer"
+                "electiveSubjectsContainer",
             );
             const coreResults = document.getElementById("coreResults");
             const formData = new FormData(coreResults);
@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const response = await ajaxRequest(
                     "POST",
                     coreResults.dataset.url,
-                    Object.fromEntries(formData)
+                    Object.fromEntries(formData),
                 );
                 if ((response.statusCode = 808)) {
                     updateStatus(true);
@@ -60,28 +60,34 @@ document.addEventListener("DOMContentLoaded", function () {
             const electiveResultsForm =
                 document.getElementById("electiveResults");
             const coreSubjectsInput = Object.fromEntries(
-                new FormData(coreResultsForm)
+                new FormData(coreResultsForm),
             );
             const electiveSubjectInputs = Object.fromEntries(
-                new FormData(electiveResultsForm)
+                new FormData(electiveResultsForm),
             );
 
             try {
                 const response = await ajaxRequest(
                     "POST",
                     electiveResultsForm.dataset.url,
-                    electiveSubjectInputs
+                    electiveSubjectInputs,
                 );
                 if (response.statusCode === 808) {
-                    getProgrammes(
-                        response.url,
-                        {
-                            ...coreSubjectsInput,
-                            ...electiveSubjectInputs,
-                        },
-                        currentStep
+                    updateStatus(true);
+                    document.body.style.overflowY = "auto";
+                    const curatingContainer = document.getElementById(
+                        "curatingProgrammesContainer",
                     );
+                    const currentlyShowing = document.getElementById(
+                        "electiveSubjectsContainer",
+                    );
+                    slideRight(currentlyShowing, curatingContainer);
+                    showProgress(currentStep);
                     currentStep++;
+                    getProgrammes(response.url, {
+                        ...coreSubjectsInput,
+                        ...electiveSubjectInputs,
+                    });
                 } else {
                     updateStatus(true);
                     document.body.style.overflowY = "auto";
@@ -89,6 +95,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             } catch (err) {
                 updateStatus(true);
+                document.body.style.overflowY = "auto";
                 showErrMsgForThreeSecs("An unexpected error occurred");
             }
         });
@@ -99,7 +106,7 @@ document.addEventListener("DOMContentLoaded", function () {
         homeBtn.addEventListener("click", function () {
             const callToAction = document.getElementById("callToAction");
             const uploadResultsContainer = document.getElementById(
-                "uploadResultsContainer"
+                "uploadResultsContainer",
             );
             callToAction.classList.replace("hideCurrent", "showing");
             uploadResultsContainer.classList.replace("showing", "hide");
@@ -137,22 +144,22 @@ document.addEventListener("DOMContentLoaded", function () {
     const electivesSelect = document.querySelectorAll(".electiveSelect");
     if (electivesSelect) {
         electivesSelect.forEach((select) =>
-            select.addEventListener("change", updateOptions)
+            select.addEventListener("change", updateOptions),
         );
     }
 
     const viewProgrammesBtn = document.getElementById("viewProgrammesBtn");
     if (viewProgrammesBtn) {
         const uploadResultsContainer = document.getElementById(
-            "uploadResultsContainer"
+            "uploadResultsContainer",
         );
         const resultsContainer = document.getElementById("resultsContainer");
         viewProgrammesBtn.addEventListener("click", () => {
             viewProgrammesBtn.classList.add("translate-x-400");
-            setTimeout(() => changeBg("/assets/images/gctu3.jpg"), 100);
+            // setTimeout(() => changeBg("/assets/images/gctu3.jpg"), 100);
             setTimeout(
                 () => zoomIn(uploadResultsContainer, resultsContainer),
-                300
+                300,
             );
             populateProgrammesRecommended();
         });
@@ -171,7 +178,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const response = await ajaxRequest(
                     "POST",
                     loginForm.dataset.url,
-                    data
+                    data,
                 );
                 if (response.status === 808) {
                     window.location.replace(response.redirect_url);
@@ -255,60 +262,60 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    async function getProgrammes(url, data, step) {
-        const curatingContainer = document.getElementById(
-            "curatingProgrammesContainer"
-        );
-        const currentlyShowing = document.getElementById(
-            "electiveSubjectsContainer"
-        );
-        try {
-            const response = await ajaxRequest("POST", url, data);
-            updateStatus(true);
-            document.body.style.overflowY = "auto";
-            if (response.statusCode === 999) {
-                showErrMsgForThreeSecs("An unexpected error occurred: ");
-                return;
+    async function getProgrammes(url, data) {
+        const newData = { ...data, step: 1 };
+        for (let i = 1; i <= 4; i++) {
+            try {
+                const response = await ajaxRequest("POST", url, newData);
+                if (response.statusCode === 999) {
+                    for (let c = i; c <= 4; c++) {
+                        updateStep(c, true);
+                    }
+                    break;
+                }
+                updateStep(newData.step);
+                newData.step += 1;
+                if (i === 1) {
+                    const agg = document.getElementById("aggContainer");
+                    const span = document.createElement("span");
+                    span.textContent = `Aggregate:  ${response.aggregate}`;
+                    span.classList.add("text-white", "font-bold", "text-md");
+                    agg.appendChild(span);
+                } else if (i === 4) {
+                    const progCont = document.getElementById(
+                        "viewProgrammesContainer",
+                    );
+                    progCont.classList.replace("opacity-0", "opacity-100");
+                    progCont.classList.replace("scale-0", "scale-100");
+                    localStorage.setItem(
+                        "recommendedProgrammes",
+                        JSON.stringify(response.data),
+                    );
+                    if (response.statusCode === 808) {
+                        document
+                            .getElementById("viewProgrammesBtn")
+                            .classList.remove("hidden");
+                        document
+                            .getElementById("noProgrammeFound")
+                            .classList.add("hidden");
+                        return;
+                    }
+                }
+            } catch (err) {
+                for (let c = i; c <= 4; c++) {
+                    updateStep(c, true);
+                }
             }
-
-            slideRight(currentlyShowing, curatingContainer);
-            showProgress(step);
-            await updateSteps();
-            const progCont = document.getElementById("viewProgrammesContainer");
-            progCont.classList.replace("opacity-0", "opacity-100");
-            progCont.classList.replace("scale-0", "scale-100");
-            localStorage.setItem(
-                "recommendedProgrammes",
-                JSON.stringify(response.data)
-            );
-            if (response.statusCode === 808) {
-                document
-                    .getElementById("viewProgrammesBtn")
-                    .classList.remove("hidden");
-                document
-                    .getElementById("noProgrammeFound")
-                    .classList.add("hidden");
-                return;
-            }
-        } catch (err) {
-            updateStatus(true);
-            document.body.style.overflowY = "auto";
-            showErrMsgForThreeSecs("An unexpected error occurred");
         }
     }
 
-    function updateSteps() {
-        return new Promise((resolve) => {
-            const steps = document.querySelectorAll(".step");
-            steps.forEach((step, index) => {
-                setTimeout(() => {
-                    step.classList.add("text-yellow-400");
-                    if (index === steps.length - 1) {
-                        resolve();
-                    }
-                }, 2000 * (index + 1));
-            });
-        });
+    function updateStep(num, error = false) {
+        const step = document.querySelector(`.step${num}`);
+        if (!error) {
+            step.classList.add("text-yellow-400");
+        } else {
+            step.classList.add("text-red-600");
+        }
     }
 
     function updateOptions() {
@@ -330,11 +337,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function populateProgrammesRecommended() {
         const programmes = JSON.parse(
-            localStorage.getItem("recommendedProgrammes")
+            localStorage.getItem("recommendedProgrammes"),
         );
         if (programmes) {
             const programmesAccordionContainer = document.getElementById(
-                "programmesAccordionContainer"
+                "programmesAccordionContainer",
             );
             for (const faculty in programmes) {
                 const div = document.createElement("div");
@@ -355,7 +362,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     "rounded-xl",
                     "gap-5",
                     "overflow-hidden",
-                    "relative"
+                    "relative",
                 );
                 div.innerHTML = `<div class='flex justify-between items-center w-full'><p class='font-semibold'>${faculty}</p><i class='bi bi-caret-down-fill transition-all duration-500' onclick="showDropdown(this, '${faculty}')"></i></div>`;
                 programmesAccordionContainer.appendChild(div);
@@ -385,7 +392,7 @@ document.addEventListener("DOMContentLoaded", function () {
             "slideUp",
             "text-white/80",
             "border",
-            "animate-border"
+            "animate-border",
         );
         const id = faculty.replaceAll(" ", "");
         div.id = id;
