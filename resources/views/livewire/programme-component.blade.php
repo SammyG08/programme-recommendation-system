@@ -42,7 +42,7 @@
                     <tbody>
                         @foreach ($programmes as $programme)
                             <tr class="bg-gray-900 border-b border-gray-700 hover:bg-gray-800"
-                                wire:click="$set('selectedProgrammeId', {{ $programme->id }})"
+                                wire:click="$set('selectedProgrammeId', {{ $programme->id }}); $dispatch('refreshDashboardCard')"
                                 wire:key="programme-{{ $programme->id }}">
                                 <td class="text-xs lg:text-sm px-6 py-4 cursor-default whitespace-nowrap">
                                     {{ $programme->programme_name }}

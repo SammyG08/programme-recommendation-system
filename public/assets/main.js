@@ -275,12 +275,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
                 updateStep(newData.step);
                 newData.step += 1;
-                if (i === 1) {
-                    const agg = document.getElementById("aggContainer");
-                    const span = document.createElement("span");
-                    span.textContent = `Aggregate:  ${response.aggregate}`;
-                    span.classList.add("text-white", "font-bold", "text-md");
-                    agg.appendChild(span);
+                if (i === 2) {
+                    const agg = document.getElementById("aggregate");
+                    agg.textContent = `aggregate scored: ${response.aggregate}`;
+                    agg.classList.remove("hidden");
                 } else if (i === 4) {
                     const progCont = document.getElementById(
                         "viewProgrammesContainer",
@@ -314,7 +312,8 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!error) {
             step.classList.add("text-yellow-400");
         } else {
-            step.classList.add("text-red-600");
+            step.classList.add("text-gray-400");
+            step.classList.replace("bi-check-circle-fill", "bi-x-circle-fill");
         }
     }
 

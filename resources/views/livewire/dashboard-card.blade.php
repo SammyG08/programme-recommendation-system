@@ -8,21 +8,13 @@
     @if ($faculties)
         @foreach ($faculties as $faculty)
             <div wire:key="faculty-{{ $faculty->id }}"
-                class="flex transition-all duration-500 bg-gray-900 border-2 border-blue-900 rounded-xl h-full p-2 sm:p-5 flex-col items-center gap-0 justify-start w-full">
+                class="flex transition-all duration-500 bg-gray-900 border-2 border-blue-900 rounded-xl h-full p-2 sm:p-5 flex-col items-center gap-0 justify-start w-full relative">
                 <div
-                    class="-translate-y-15 p-5 bg-blue-500 flex items-center justify-center border-7 border-black rounded-full h-22 w-22 xl:h-25 2xl:w-25">
+                    class="-translate-y-15 p-5 bg-black text-white flex items-center justify-center border-7 border-blue-950 rounded-full h-22 w-22 xl:h-25 2xl:w-25">
                     <span
                         class="text-xl 2xl:text-2xl font-bold">{{ $faculty->programmes->unique('programme_name')->count() }}</span>
                 </div>
-                <div
-                    class="flex w-full justify-end items-center -translate-y-13 rounded-lg h-1 bg-blue-500/30 animate-pulse">
-                    @if ($updatedFacultyId === $faculty->id)
-                        <button
-                            class="px-3 bg-black text-white rounded-lg flex items-center justify-center py-1 border-2 border-blue-500">
-                            <span class="text-xs font-bold">NEW PROGRAMME ADDED</span>
-                        </button>
-                    @endif
-                </div>
+                
                 <div
                     class="h-30 flex flex-col items-start justify-center border border-white/20 gap-0 rounded-xl p-5 bg-black/20 -translate-y-8 w-full ">
 

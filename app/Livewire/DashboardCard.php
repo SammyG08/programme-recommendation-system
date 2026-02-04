@@ -47,6 +47,12 @@ class DashboardCard extends Component
         $this->showDashboardCards = false;
     }
 
+    #[On('refreshDashboardCard')]
+    public function resetUpdatedFacultyId()
+    {
+        $this->updatedFacultyId = null;
+    }
+
     public function uploadFile($facultyId)
     {
         try {

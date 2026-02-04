@@ -71,7 +71,11 @@ class ProgrammeAdd extends Component
                 $programmeTypeId = $this->getProgrammeTypeId($this->programme_type);
                 $programme_name = $this->programme_name;
                 $p = Programme::where('programme_name', $programme_name)->get();
-                if ($p->count()) session()->flash('error', 'Programme already exists');
+                if ($p->count()) {
+                    session()->flash('error', 'Programme already exists');
+                    $this->dispatch('adding-programme-error');
+                    return;
+                }
                 foreach ($cores as $core) {
                     if ($core) {
                         LOG::INFO('Creating programme with core:', [$core]);

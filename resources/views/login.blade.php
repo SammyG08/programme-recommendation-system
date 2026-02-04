@@ -52,11 +52,11 @@
                                 <span>Login</span>
                                 <span class="bi bi-door-open"></span>
                             </button>
-                            <button
+                            {{-- <button
                                 class="bg-transparent border transition-colors duration-300 border-gray-600 hover:border-blue-500 text-white font-bold uppercase text-md flex items-center gap-1 px-3 py-1 rounded-lg w-full justify-center">
                                 <span>Forgot Password</span>
                                 <span class="bi bi-door-open"></span>
-                            </button>
+                            </button> --}}
                         </div>
 
                     </form>

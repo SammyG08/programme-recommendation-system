@@ -62,14 +62,17 @@ class ProgrammeController extends Controller
                 $foeProgrammesUserElligibleToStudyBasedOnElectives = $this->processElectiveResults($request, 'Faculty of Engineering');
                 $businessSchoolProgrammesElligibleToStudyBasedOnElectives = $this->processElectiveResults($request, 'Business School');
                 $this->storeInSession(['core_ids' => $elligibleProgrammesIdBasedOnCores, 'focis_ids' => $focisProgrammesUserElligibleToStudyBasedOnElectives, 'foe_ids' => $foeProgrammesUserElligibleToStudyBasedOnElectives, 'bs_ids' => $businessSchoolProgrammesElligibleToStudyBasedOnElectives]);
-                return response()->json(['aggregate' => $this->aggregate, 'statusCode' => 808]);
+                session(['aggregate' => $this->aggregate]);
+                return response()->json(['statusCode' => 808]);
             } elseif ($step === 2) {
+                $aggregate = session('aggregate');
+                $this->clearSessionData(['aggregate']);
                 $focisProgrammesIds = $this->filterArrayBasedOnSimilarIds(session('focis_ids'), session('core_ids'));
                 $foeProgrammesIds = $this->filterArrayBasedOnSimilarIds(session('foe_ids'), session('core_ids'));
                 $businessSchoolProgrammesIds = $this->filterArrayBasedOnSimilarIds(session('bs_ids'), session('core_ids'));
                 $this->clearSessionData(['core_ids', 'focis_ids', 'foe_ids', 'bs_ids']);
                 $this->storeInSession(['focis' => $focisProgrammesIds, 'foe' => $foeProgrammesIds, 'bs' => $businessSchoolProgrammesIds]);
-                return response()->json(['statusCode' => 808]);
+                return response()->json(['statusCode' => 808, 'aggregate' => $aggregate]);
             } elseif ($step === 3) {
                 $focisProgrammes = $this->getProgrammesFromId(session('focis'));
                 $foeProgrammes = $this->getProgrammesFromId(session('foe'));

@@ -170,7 +170,7 @@
                         class=" text-white font-bold lg:max-w-[70%] 2xl:max-w-[50%] w-full flex flex-col justify-between items-center p-5 lg:p-10 2xl:text-justify gap-5">
                         <div class="flex flex-col items-start gap-4 w-full">
                             <div
-                                class="flex w-full justify-center bg-neutral-900/30 mb-7 p-5 gap-2 text-md md:text-2xl items-center rounded-xl relative border border-blue-500">
+                                class="flex w-full justify-center bg-neutral-900/30 mb-7 p-5 gap-2 text-md md:text-2xl items-center rounded-xl relative">
                                 <i class="bi bi-cpu-fill"></i>
                                 <h1 class="">Curating Eligible Programmes</h1>
                             </div>
@@ -183,21 +183,22 @@
                         <div
                             class="flex flex-col items-start gap-5 w-full bg-black/25 rounded-xl shadow-md shadow-blue-950">
                             <ul class="list-disc list-inside p-2 w-full flex flex-col gap-3">
-                                <li class="flex gap-2 w-full bg-black/30 p-5 rounded-xl transition-colors duration-100 border border-blue-950">
-                                    <span class="step1 bi bi-check-circle-fill"></span><span class="">Checking
-                                        results</span>
+                                <li class="flex flex-col gap-2 w-full bg-black/30 p-5 rounded-xl transition-colors duration-100 border border-blue-950">
+                                    <div class="flex gap-2 w-full rounded-xl">
+                                        <span class="step1 bi bi-check-circle-fill"></span><span class="">Analyzing your results</span>
+                                    </div>
+                                </li>
+                                <li class="flex flex-col gap-2 w-full bg-black/30 p-5 rounded-xl transition-colors duration-100 border border-blue-950">
+                                    <div class="flex gap-2 w-full rounded-xl">
+                                          <span class="step2 bi bi-check-circle-fill"></span><span class="">Calculating your aggregate score</span>
+                                    </div>
+                                    <span class="uppercase font-bold hidden" id="aggregate"></span>
                                 </li>
                                 <li class="flex gap-2 w-full bg-black/30 p-5 rounded-xl transition-colors duration-100 border border-blue-950">
-                                    <span class="step2 bi bi-check-circle-fill"></span><span class="">Matching
-                                        programmes</span>
+                                    <span class="step3 bi bi-check-circle-fill"></span><span class="">Matching with university requirements</span>
                                 </li>
                                 <li class="flex gap-2 w-full bg-black/30 p-5 rounded-xl transition-colors duration-100 border border-blue-950">
-                                    <span class="step3 bi bi-check-circle-fill"></span><span class="">Filtering
-                                        programmes </span>
-                                </li>
-                                <li class="flex gap-2 w-full bg-black/30 p-5 rounded-xl transition-colors duration-100 border border-blue-950">
-                                    <span class="step4 bi bi-check-circle-fill"></span><span class="">Compiling
-                                        programmes</span>
+                                    <span class="step4 bi bi-check-circle-fill"></span><span class="">Finalizing your recommendations</span>
                                 </li>
 
                             </ul>
@@ -225,8 +226,9 @@
             <div
                 class="text-white font-bold lg:max-w-[70%] 2xl:max-w-[50%] w-full flex flex-col justify-center items-start p-5 min-[320px]:p-10 2xl:text-justify border border-white/50 bg-white/5 rounded-xl">
                 <div
-                    class="flex gap-2 justify-center items-center w-full p-5 text-xl md:text-5xl bg-blue-950 text-white rounded-xl -translate-y-20 border animate-border" id="aggContainer">
-                    <i class="bi bi-mortarboard"></i>
+                    class="flex gap-2 justify-center items-center w-full p-5 text-sm md:text-xl bg-blue-950 text-white rounded-xl -translate-y-20 border animate-border" id="aggContainer">
+                    <i class="hidden sm:inline-block bi bi-mortarboard"></i>
+                    <p class="uppercase text-center">Ghana Communication Technology University</p>
                 </div>
                 <h1 class="text-xl md:text-3xl mb-7 -mt-10">
                     Welcome to your academic journey!
