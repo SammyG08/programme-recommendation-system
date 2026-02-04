@@ -85,7 +85,7 @@ class ProgrammeController extends Controller
                 $data = $this->filterEmptyProgrammesOut($data);
                 $returnInfo = count($data) ?
                     response()->json(['statusCode' => 808, 'data' => $data]) : response()->json(['statusCode' => 444]);
-                Log::info('aggregate scored : ' . $this->aggregate);
+                // Log::info('aggregate scored : ' . $this->aggregate);
                 $this->clearSessionData(['focis', 'bs', 'foe']);
                 return $returnInfo;
             }
@@ -131,7 +131,7 @@ class ProgrammeController extends Controller
             ->distinct()
             ->pluck('programme_name')
             ->toArray();
-        Log::info("Programme names: ", $programme_names);
+        // Log::info("Programme names: ", $programme_names);
         return $programme_names;
     }
     public function processCoreResults(Request $request)
@@ -237,7 +237,7 @@ class ProgrammeController extends Controller
             if ($idx < 3) {
                 $g = (int)substr($grade, -1, 1);
                 $this->aggregate += $g;
-                Log::info($g);
+                // Log::info($g);
             }
         }
     }
@@ -254,9 +254,10 @@ class ProgrammeController extends Controller
             $courseWithSecondLowestGrade = $keys[count($keys) - 2];
             $secondLowestGrade = $electives[$courseWithSecondLowestGrade];
             try {
-                $this->selectingElectivesEngine($idOfFacultyProgrammesUserCanOffer, $electives, $faculty_name, $lowestGrade);
+                $this->matchingElectivesEngine($idOfFacultyProgrammesUserCanOffer, $electives, $faculty_name, $lowestGrade);
                 if (count($electives) === 4) {
-                    $this->selectingElectivesEngine($idOfFacultyProgrammesUserCanOffer, $electives, $faculty_name, $secondLowestGrade);
+                    array_pop($electives);
+                    $this->matchingElectivesEngine($idOfFacultyProgrammesUserCanOffer, $electives, $faculty_name, $secondLowestGrade);
                 }
             } catch (ModelNotFoundException $e) {
                 throw new Exception($e->getMessage());
@@ -265,7 +266,7 @@ class ProgrammeController extends Controller
         return array_unique($idOfFacultyProgrammesUserCanOffer);
     }
 
-    private function selectingElectivesEngine(&$idOfFacultyProgrammesUserCanOffer, $electives, $faculty_name, $grade)
+    private function matchingElectivesEngine(&$idOfFacultyProgrammesUserCanOffer, $electives, $faculty_name, $grade)
     {
         // Log::info('Starting electives for matching: ', $electives);
         $seen = false;
@@ -276,6 +277,7 @@ class ProgrammeController extends Controller
             throw new Exception('Contact administration to update available faculties in the school');
         }
         $facultyProgrammes = $faculty->programmes()->where('lowest_grade_for_electives', '>=', $grade)->get();
+        // Log::info("$faculty->faculty_name programmes", $facultyProgrammes->toArray());
         if ($facultyProgrammes->count()) {
             foreach ($facultyProgrammes as $facultyProgramme) {
                 $tempElectives = $electives;
