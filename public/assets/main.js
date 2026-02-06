@@ -392,6 +392,8 @@ document.addEventListener("DOMContentLoaded", function () {
             "text-white/80",
             "border",
             "animate-border",
+            "h-60",
+            "overflow-y-auto",
         );
         const id = faculty.replaceAll(" ", "");
         div.id = id;
