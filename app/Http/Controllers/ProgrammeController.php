@@ -246,18 +246,23 @@ class ProgrammeController extends Controller
         $coreSubjects = session('coreGradesSorted');
         $electiveSubjects = session('electiveGradesSorted');
 
-        foreach (array_values($coreSubjects) as $idx => $grade) {
-            if ($idx < 3) {
-                $g = (int)substr($grade, -1, 1);
-                $this->aggregate += $g;
-            }
-        }
+        $cMathGrade = $this->makeGradeInt($coreSubjects['mathematics']);
+        $englishGrade = $this->makeGradeInt($coreSubjects['english']);
+        $socialGrade = $this->makeGradeInt($coreSubjects['social']);
+        $scienceGrade = $this->makeGradeInt($coreSubjects['science']);
+        $this->aggregate += $cMathGrade + $englishGrade + min($socialGrade, $scienceGrade);
+
         foreach (array_values($electiveSubjects) as $idx => $grade) {
             if ($idx < 3) {
-                $g = (int)substr($grade, -1, 1);
+                $g = $this->makeGradeInt($grade);
                 $this->aggregate += $g;
             }
         }
+    }
+
+    private function makeGradeInt($gradeStr)
+    {
+        return (int) substr($gradeStr, -1, 1);
     }
 
     public function elligibleProgrammesIds($electives, $faculty_name)
