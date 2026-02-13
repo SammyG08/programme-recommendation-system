@@ -196,6 +196,34 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    const retryBtn = document.getElementById("retryBtn");
+    if (retryBtn) {
+        retryBtn.addEventListener("click", async function () {
+            refreshSteps();
+            const coreResultsForm = document.getElementById("coreResults");
+            const electiveResultsForm =
+                document.getElementById("electiveResults");
+            const coreSubjectsInput = Object.fromEntries(
+                new FormData(coreResultsForm),
+            );
+            const electiveSubjectInputs = Object.fromEntries(
+                new FormData(electiveResultsForm),
+            );
+
+            await getProgrammes(retryBtn.dataset.url, {
+                ...coreSubjectsInput,
+                ...electiveSubjectInputs,
+            });
+        });
+    }
+
+    const goToHomeBtn = document.getElementById("goToHomeBtn");
+    if (goToHomeBtn) {
+        goToHomeBtn.addEventListener("click", function () {
+            window.location.reload();
+        });
+    }
+
     function changeBg(path) {
         const el = document.getElementById("first");
 
@@ -268,9 +296,14 @@ document.addEventListener("DOMContentLoaded", function () {
             try {
                 const response = await ajaxRequest("POST", url, newData);
                 if (response.statusCode === 999) {
+                    document
+                        .getElementById("retryBtn")
+                        .classList.replace("hidden", "flex");
+
                     for (let c = i; c <= 4; c++) {
                         updateStep(c, true);
                     }
+
                     break;
                 }
                 updateStep(newData.step);
@@ -300,9 +333,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 }
             } catch (err) {
+                document
+                    .getElementById("retryBtn")
+                    .classList.replace("hidden", "flex");
                 for (let c = i; c <= 4; c++) {
                     updateStep(c, true);
                 }
+                break;
             }
         }
     }
@@ -314,6 +351,14 @@ document.addEventListener("DOMContentLoaded", function () {
         } else {
             step.classList.add("text-gray-400");
             step.classList.replace("bi-check-circle-fill", "bi-x-circle-fill");
+        }
+    }
+
+    function refreshSteps() {
+        for (let i = 1; i <= 4; i++) {
+            const step = document.querySelector(`.step${i}`);
+            step.classList.remove("text-gray-400", "text-yellow-400");
+            step.classList.replace("bi-x-circle-fill", "bi-check-circle-fill");
         }
     }
 

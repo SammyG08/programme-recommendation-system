@@ -173,11 +173,25 @@
                                 <i class="bi bi-cpu-fill"></i>
                                 <h1 class="">Curating Eligible Programmes</h1>
                             </div>
+
+                            <div class="flex justify-between items-center gap-5 text-normal text-sm md:text-md w-full">
+                                <p class=" text-red-500"><i
+                                        class="bi bi-exclamation-triangle-fill mr-2"></i>Please do not
+                                    leave this page
+                                    during the process</p>
+
+                                    <div class="flex items-center justify-end gap-5">
+                                        <button class="w-7 h-7 justify-center items-center rounded-full bg-gray-500 text-white transition-colors hover:bg-gray-700 hidden" id="retryBtn" data-url="{{ route('programmes-recommended') }}">
+                                            <i class="bi bi-arrow-repeat"></i>
+                                        </button>
+                                        <button class="w-7 h-7 flex justify-center items-center rounded-full bg-blue-500 text-white transition-colors hover:bg-blue-700" id="goToHomeBtn">
+                                            <i class="bi bi-house"></i>
+                                        </button>
+                                        
+                                    </div>
+
+                            </div>
                             
-                            <p class="text-normal text-sm md:text-md w-full text-red-500"><i
-                                    class="bi bi-exclamation-triangle-fill mr-2"></i>Please do not
-                                leave this page
-                                during the process</p>
                         </div>
                         <div
                             class="flex flex-col items-start gap-5 w-full bg-black/25 rounded-xl shadow-md shadow-blue-950">

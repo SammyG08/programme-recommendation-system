@@ -53,17 +53,14 @@ class ProgrammeController extends Controller
 
     public function programmesRecommended(Request $request)
     {
-        // Log::info('Processing programme recommendation request');
         try {
             $step = (int)$request->get('step');
             if ($step === 1) {
                 $elligibleProgrammesIdBasedOnCores = $this->processCoreResults($request);
-                // Log::info('core ids: ', $elligibleProgrammesIdBasedOnCores->toArray());
                 $focisProgrammesUserElligibleToStudyBasedOnElectives = $this->processElectiveResults($request, 'Faculty of Computing & Information Systems');
                 $foeProgrammesUserElligibleToStudyBasedOnElectives = $this->processElectiveResults($request, 'Faculty of Engineering');
                 $businessSchoolProgrammesElligibleToStudyBasedOnElectives = $this->processElectiveResults($request, 'Business School');
                 $this->storeInSession(['core_ids' => $elligibleProgrammesIdBasedOnCores, 'focis_ids' => $focisProgrammesUserElligibleToStudyBasedOnElectives, 'foe_ids' => $foeProgrammesUserElligibleToStudyBasedOnElectives, 'bs_ids' => $businessSchoolProgrammesElligibleToStudyBasedOnElectives]);
-                // Log::info('ids: ', [$foeProgrammesUserElligibleToStudyBasedOnElectives, $businessSchoolProgrammesElligibleToStudyBasedOnElectives, $focisProgrammesUserElligibleToStudyBasedOnElectives]);
                 return response()->json(['statusCode' => 808]);
             } elseif ($step === 2) {
                 $this->calculateAggregate();
@@ -86,13 +83,11 @@ class ProgrammeController extends Controller
                 $data = $this->filterEmptyProgrammesOut($data);
                 $returnInfo = count($data) ?
                     response()->json(['statusCode' => 808, 'data' => $data]) : response()->json(['statusCode' => 444]);
-                // Log::info('aggregate scored : ' . $this->aggregate);
 
                 $this->clearSessionData(['focis', 'bs', 'foe']);
                 return $returnInfo;
             }
         } catch (Exception $e) {
-            // Log::info('Error encountered: ' . $e);
             return response()->json(['statusCode' => 999, 'msg' => $e->getMessage()]);
         }
     }
@@ -133,7 +128,6 @@ class ProgrammeController extends Controller
             ->distinct()
             ->pluck('programme_name')
             ->toArray();
-        // Log::info("Programme names: ", $programme_names);
         return $programme_names;
     }
     public function processCoreResults(Request $request)
@@ -206,7 +200,6 @@ class ProgrammeController extends Controller
     {
         if (count($subjectsWithBestGrades) < 3) return collect();
         $coreQuery = CoreSubject::query();
-        // Log::info('Core subjects with best grades:', $subjectsWithBestGrades);
         $lowestGrade = array_last($subjectsWithBestGrades);
         $lowestGradeSubject = array_last(array_keys($subjectsWithBestGrades));
         $programmes = collect();
@@ -214,12 +207,9 @@ class ProgrammeController extends Controller
         if (isset($subjectsWithBestGrades['english']) && isset($subjectsWithBestGrades['mathematics'])) {
             $newQuery = CoreSubject::query()->where('english', '=', 'required')->where('mathematics', '=', 'required');
             $noEnglishOrMath = array_filter(array_keys($subjectsWithBestGrades), fn($value) => $value !== 'english' && $value !== 'mathematics');
-            // Log::info('no english or math: ', $noEnglishOrMath);
             $coreModel = $newQuery->where(array_last($noEnglishOrMath), '=', 'required')->first();
 
             $programmes = Programme::where('core_subject_id', '=', $coreModel->id)->where('lowest_grade_for_cores', '>=', $lowestGrade)->get();
-            // Log::info('core model id: ', [$coreModel->id, $lowestGradeSubject]);
-            // Log::info('lowest grade: ', [$lowestGrade]);
             if (count($subjectsWithBestGrades) === 4) {
                 $cModel = null;
                 if ($lowestGradeSubject !== 'english' && $lowestGradeSubject !== 'mathematics') {
@@ -237,7 +227,6 @@ class ProgrammeController extends Controller
             }
         }
         $programmes = $programmes->unique('id');
-        // Log::info('Programmes found:', $programmes->toArray());
         return $programmes;
     }
 
@@ -268,7 +257,6 @@ class ProgrammeController extends Controller
     public function elligibleProgrammesIds($electives, $faculty_name)
     {
         $idOfFacultyProgrammesUserCanOffer = [];
-        // Log::info('Electives with best grades:', $electives);
         if (count($electives) >= 3 && count($electives) <= 4) {
             $lowestGrade = array_last($electives);
             $keys = array_keys($electives);
@@ -276,23 +264,20 @@ class ProgrammeController extends Controller
             $secondLowestGrade = $electives[$courseWithSecondLowestGrade];
             try {
                 $this->matchingElectivesEngine($idOfFacultyProgrammesUserCanOffer, $electives, $faculty_name, $lowestGrade);
-                // Log::info('ids of elective subjects: ', array_unique($idOfFacultyProgrammesUserCanOffer));
                 if (count($electives) === 4) {
                     array_pop($electives);
                     $this->matchingElectivesEngine($idOfFacultyProgrammesUserCanOffer, $electives, $faculty_name, $secondLowestGrade);
                 }
-            } catch (ModelNotFoundException $e) {
+            } catch (Exception $e) {
                 throw new Exception($e->getMessage());
             }
         }
-        // Log::info('ids of elective subjects: ', array_unique($idOfFacultyProgrammesUserCanOffer));
 
         return array_unique($idOfFacultyProgrammesUserCanOffer);
     }
 
     private function matchingElectivesEngine(&$idOfFacultyProgrammesUserCanOffer, $electives, $faculty_name, $grade)
     {
-        // Log::info('Starting electives for matching: ', $electives);
         $seen = false;
         $faculty = null;
         try {
@@ -301,7 +286,6 @@ class ProgrammeController extends Controller
             throw new Exception('Contact administration to update available faculties in the school');
         }
         $facultyProgrammes = $faculty->programmes()->where('lowest_grade_for_electives', '>=', $grade)->get();
-        // Log::info("$faculty->faculty_name programmes", $facultyProgrammes->toArray());
         if ($facultyProgrammes->count()) {
             foreach ($facultyProgrammes as $facultyProgramme) {
                 $tempElectives = $electives;
@@ -310,7 +294,6 @@ class ProgrammeController extends Controller
                 $subjectsOccurence = array_count_values($electiveSubjects);
 
                 if (isset($subjectsOccurence['any']) || isset($subjectsOccurence['science-related subject'])) {
-                    // Log::info('Any or science-related subject found in electives requirements for programme id: ' . $facultyProgramme->id);
                     $seen = true;
                     $remainingElectives = array_keys(array_filter($subjectsOccurence, function ($value, $key) {
                         return $key !== 'any' && $key !== 'science-related subject';
@@ -331,15 +314,12 @@ class ProgrammeController extends Controller
                         }
                     }
                 } else {
-                    // Log::info('Specific electives found in electives requirements for programme id: ' . $facultyProgramme->id);
                     foreach ($electiveSubjects as $subject) {
                         $subjectArray = explode('|', $subject);
-                        // Log::info('Checking subject options: ', $subjectArray);
                         foreach ($subjectArray as $s) {
                             if (in_array($s, array_keys($tempElectives))) {
                                 $seen = true;
                                 unset($tempElectives[$s]);
-                                // Log::info('Remaining electives after matching: ', $tempElectives);
                                 break;
                             }
                             $seen = false;

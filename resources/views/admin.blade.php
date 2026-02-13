@@ -1,7 +1,7 @@
 @extends('layout.base')
 @section('content')
     <div class="w-full min-h-screen h-full flex flex-col justify-center items-center bg-no-repeat bg-cover bg-center relative"
-        style="background-image: url({{ asset('assets/images/gctu6.jpg') }})">
+        style="background-image: url({{ asset('assets/images/gctu3.jpg') }})">
         <div x-data x-cloak class="flex w-full justify-end items-start fixed top-5 right-5 rounded-lg mb-5 z-20">
             <form action="{{ route('logout') }}" class="" method="post">
                 @csrf

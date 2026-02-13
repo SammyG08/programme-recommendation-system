@@ -1,15 +1,18 @@
-<div class="flex flex-col gap-4 items-start justify-start w-full mt-20 2xl:mt-5 bg-black rounded-xl" x-cloak
-    x-data="{ showing: true }" x-on:modal-open.window="showing = false" x-show="showing"
-    x-on:modal-closed.window="showing = true" x-on:programme-added.window="$wire.$refresh(); showing=true" x-on:upload-done.window="$wire.$refresh()">
+<div class="flex flex-col gap-4 items-start justify-start w-full mt-20 2xl:mt-5 rounded-xl" x-cloak
+    x-data="{ showing: true}" x-on:modal-open.window="showing = false" x-show="showing"
+    x-on:modal-closed.window="showing = true" x-on:programme-added.window="$wire.$refresh(); showing=true"
+    x-on:upload-done.window="$wire.$refresh()">
+
+
     @if (!$selectedProgrammeId)
-        <div class="transition-all duration-500 flex-col justify-evenly items-start gap-5 w-full h-full border border-blue-900 p-2 2xl:p-5  rounded-xl"
+        <div class="transition-all duration-500 flex-col justify-evenly items-start gap-5 w-full h-full p-2 2xl:p-5  rounded-xl"
             wire:key="programme-list">
             <div class="w-full flex justify-end items-center bg-gray-700 p-1 border-2 border-blue-800">
-                <div class="w-full flex justify-center items-center gap-2">
+                {{-- <div class="w-full flex justify-center items-center gap-2">
                     <input type="text"
                         class="w-full lg:w-[50%] 2xl:w-[30%] bg-slate-800 text-white px-2 py-1 rounded-lg border border-white/20"
                         placeholder="Programme name">
-                </div>
+                </div> --}}
                 <button wire:click="updateProgrammeType()"
                     class="flex justify-end items-center px-2 py-1 bg-blue-500 rounded-lg transition-colors duration-500 hover:bg-blue-700">
                     <i class="bi bi-filter-circle text-white text-md"></i>
@@ -30,12 +33,14 @@
                                 Faculty
                             </th>
                             <th class="px-6 py-3 whitespace-nowrap">
-                                Added on <i class="{{ $order === 'asc' ? 'bi bi-sort-down' : 'bi bi-sort-up' }} ml-1"
-                                    wire:click="updateOrder()"></i>
+                                Added on <i
+                                    class="{{ $createdAtOrder === 'asc' ? 'bi bi-sort-down' : 'bi bi-sort-up' }} ml-1"
+                                    wire:click="updateOrderForCreatedAt()"></i>
                             </th>
                             <th class="px-6 py-3 whitespace-nowrap">
-                                Last Updated<i class="{{ $order === 'asc' ? 'bi bi-sort-down' : 'bi bi-sort-up' }} ml-1"
-                                    wire:click="updateOrder()"></i>
+                                Last Updated<i
+                                    class="{{ $updatedAtOrder === 'asc' ? 'bi bi-sort-down' : 'bi bi-sort-up' }} ml-1"
+                                    wire:click="updateOrderForUpdatedAt()"></i>
                             </th>
                         </tr>
                     </thead>
@@ -65,15 +70,26 @@
                 </table>
 
             </div>
-            <div class="w-full bg-gray-900 pl-2 mt-3">
+            <div class="w-full bg-gray-900 sm:pl-2 mt-3 rounded-xl">
                 {{ $programmes->links() }}
 
             </div>
         </div>
     @else
         <div class="transition-all duration-500 flex-col justify-evenly items-center gap-5 w-full h-full p-2 2xl:p-5 rounded-xl relative border border-blue-950"
-            x-data="{ showing: true}" x-cloak x-show="showing" x-on:edit-programme.window="showing = false" x-on:update-cancelled.window="showing=true" x-on:update-complete.window="$wire.$refresh(); showing=true;"
+            x-data="{ showing: true, updateFailed: false, errMsg: null }" x-cloak x-show="showing" x-on:edit-programme.window="showing = false"
+            x-on:update-cancelled.window="showing=true" x-on:update-complete.window="$wire.$refresh(); showing=true;"
+            x-on:update-programme-failed.window="showing=true; $wire.$refresh(); errMsg = $event.detail.msg"
             wire:key="selected-programme-{{ $selectedProgrammeId }}">
+
+            <div x-show="updateFailed" x-cloak
+                x-on:update-programme-failed.window="updateFailed=true; setTimeout(() => updateFailed = false, 3000)"
+                x-transition.opacity.duration.500ms
+                class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80 h-full w-full">
+                <div class=" bg-neutral-900 p-5 rounded-xl">
+                    <span class="text-sm text-white">Update failed: <span x-text="errMsg"></span></span>
+                </div>
+            </div>
 
             <div class="w-full flex items-center justify-center rounded-lg gap-2 bg-slate-950 p-1 lg:p-5">
                 <div
@@ -85,7 +101,8 @@
                         <span class="uppercase text-xs lg:text-sm">{{ $this->selectedProgramme->programme_name }}
                             Details</span>
                     </div>
-                    <i class="absolute top-0 right-0 p-2 bi bi-x-circle text-sm" wire:click="$set('selectedProgrammeId', null)"></i>
+                    <i class="absolute top-0 right-0 p-2 bi bi-x-circle text-sm"
+                        wire:click="$set('selectedProgrammeId', null)"></i>
 
                     <div
                         class="w-full flex flex-wrap lg:flex-nowrap justify-around items-center gap-3 p-3 bg-gray-900 rounded-lg">
@@ -214,10 +231,12 @@
         </div>
         <!-- editing programme modal-->
 
-        <div x-data = "{showModal: false, isDisabled:true}" x-show = "showModal" x-cloak x-on:click.outside="showModal=false; $dispatch('update-cancelled')"
-            x-on:edit-programme.window="showModal = true" x-on:setting-complete.window="isDisabled=false" x-on:update-complete.window="showModal = false"
+        <div x-data = "{showModal: false, isDisabled:true}" x-show = "showModal" x-cloak
+            x-on:click.outside="showModal=false; $dispatch('update-cancelled')"
+            x-on:edit-programme.window="showModal = true" x-on:setting-complete.window="isDisabled=false"
+            x-on:update-complete.window="showModal = false" x-on:update-programme-failed.window="showModal=false;"
             :class="isDisabled ? 'pointer-events-none opacity-50' : 'opacity-100 pointer-events-auto'"
-            class=" flex transition-all duration-500 flex-col justify-evenly items-start gap-5 w-full h-full border border-blue-900 p-2 2xl:p-5 mt-20 2xl:mt-5 rounded-xl overflow-hidden">
+            class=" flex transition-all duration-500 flex-col justify-evenly items-start gap-5 w-full h-full border border-blue-900 p-2 2xl:p-5 mt-20 2xl:mt-5 rounded-xl overflow-hidden relative">
             <div class="w-full flex items-center justify-end gap-5 p-2 2xl:p-0">
                 <div class="flex items-center justify-center gap-5 w-full">
                     <h3 class="text-md md:text-lg font-bold text-white">Updating

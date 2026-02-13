@@ -10,12 +10,14 @@ use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\On;
+use Log;
 
 class ProgrammeComponent extends Component
 {
     use WithPagination;
 
-    public $order = 'desc';
+    public $createdAtOrder = 'desc';
+    public $updatedAtOrder = 'desc';
     public $programmeType = 'all';
     public $selectedProgrammeId = null;
 
@@ -35,37 +37,48 @@ class ProgrammeComponent extends Component
 
     public function render()
     {
-        $programmes = $this->getProgrammes();
+        [$column, $order] = $this->getColumnAndOrder();
+        $programmes = $this->getProgrammes(column: $column, order: $order);
         $electives = ElectivesEnum::cases();
         $cores = ['English', 'Mathematics', 'Science', 'Social'];
 
-        return view('livewire.programme-component', compact('programmes', 'electives', 'cores'));
+        return view('livewire.programme-component', compact('electives', 'cores', 'programmes'));
     }
 
-    private function getProgrammes()
+    private function getProgrammes(string $column = 'created_at', string $order = 'desc')
     {
 
         $programQuery = Programme::query();
 
         $programmeTypeId = $this->getProgrammeTypes($this->programmeType);
         // dd($programmeTypeId);
-        $programmesQuery = match ($this->order) {
-            'asc' => $programQuery->orderBy('created_at', 'asc')->whereIn('programme_type_id', $programmeTypeId),
-            'desc' => $programQuery->orderBy('created_at', 'desc')->whereIn('programme_type_id', $programmeTypeId),
+        $programmesQuery = match ($order) {
+            'asc' => $programQuery->orderBy($column, 'asc')->whereIn('programme_type_id', $programmeTypeId),
+            'desc' => $programQuery->orderBy($column, 'desc')->whereIn('programme_type_id', $programmeTypeId),
         };
 
         return $this->formatProgrammes($programmesQuery);
     }
 
-    public function updateOrder()
+    public function updateOrderForCreatedAt()
     {
-        if ($this->order === 'asc') {
-            $this->order = 'desc';
-        } elseif ($this->order === 'desc') {
-            $this->order = 'asc';
-        }
+        $this->updatedAtOrder = 'desc';
+        $this->createdAtOrder = $this->createdAtOrder === 'asc' ? 'desc' : 'asc';
     }
 
+    public function updateOrderForUpdatedAt()
+    {
+        $this->createdAtOrder = 'desc';
+        $this->updatedAtOrder = $this->updatedAtOrder === 'asc' ? 'desc' : 'asc';
+    }
+
+
+    private function getColumnAndOrder()
+    {
+        if ($this->createdAtOrder === $this->updatedAtOrder) return ['created_at', $this->createdAtOrder];
+        if ($this->createdAtOrder === 'desc' && $this->updatedAtOrder === 'asc') return ['updated_at', $this->updatedAtOrder];
+        if ($this->createdAtOrder === 'asc' && $this->updatedAtOrder === 'desc') return ['created_at', $this->createdAtOrder];
+    }
 
     public function updateProgrammeType()
     {
@@ -134,12 +147,7 @@ class ProgrammeComponent extends Component
 
     public function updateProgramme()
     {
-        try {
-            $this->dispatch('update-programme', pid: $this->selectedProgrammeId, uname: $this->programme_name, utype: $this->programme_type, ucores: $this->selectedCores, ue1: $this->electiveOne, ue2: $this->electiveTwo, ue3: $this->electiveThree)->to(ProgrammeAdd::class);
-            $this->dispatch('update-complete');
-        } catch (Exception $e) {
-            dd($e->getMessage());
-        }
+        $this->dispatch('update-programme', pid: $this->selectedProgrammeId, uname: $this->programme_name, utype: $this->programme_type, ucores: $this->selectedCores, ue1: $this->electiveOne, ue2: $this->electiveTwo, ue3: $this->electiveThree)->to(ProgrammeAdd::class);
     }
 
 

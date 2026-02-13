@@ -1,14 +1,14 @@
-<div class="flex flex-col lg:flex-row justify-evenly items-start lg:gap-5 gap-20 w-full h-full bg-black rounded-xl p-5"
+<div class="flex flex-col lg:flex-row justify-evenly items-start lg:gap-5 gap-20 w-full h-full rounded-xl p-5"
     x-data = "{showCards: true}" x-show = "showCards" x-cloak x-on:modal-open.window="showCards= false"
     x-on:programme-added.window = "showCards = true; $wire.set('updatedFacultyId', $event.detail.id)"
     x-on:modal-closed.window="showCards = true" x-on:programme-deleted.window="$wire.$refresh()"
     x-on:edit-programme.window="showCards = false" x-on:update-complete.window="showCards=true; $wire.$refresh()"
-    x-on:update-cancelled.window="showCards =true">
+    x-on:update-cancelled.window="showCards =true" x-on:update-programme-failed.window="showCards=true;">
 
     @if ($faculties)
         @foreach ($faculties as $faculty)
             <div wire:key="faculty-{{ $faculty->id }}"
-                class="flex transition-all duration-500 bg-gray-900 border-2 border-blue-900 rounded-xl h-full p-2 sm:p-5 flex-col items-center gap-0 justify-start w-full relative">
+                class="flex transition-all duration-500 bg-gray-900/40 rounded-xl h-full p-2 sm:p-5 flex-col items-center gap-0 justify-start w-full relative">
                 <div
                     class="-translate-y-15 p-5 bg-black text-white flex items-center justify-center border-7 border-blue-950 rounded-full h-22 w-22 xl:h-25 2xl:w-25">
                     <span
@@ -34,7 +34,7 @@
                 <div
                     class="mt-2 w-full p-2 bg-blue-500/20 rounded-xl flex justify-between items-center text-sm gap-3 2xl:gap-0">
                     <button x-on:click="$dispatch('modal-open', {fid: {{ $faculty->id }}})"
-                        class="w-full transition-colors duration-500 hover:bg-blue-700 h-full rounded-xl p-2 flex justify-center items-center gap-2 bg-blue-500 text-black font-bold"><span>Add
+                        class="w-full transition-colors duration-500 hover:bg-blue-700 h-full rounded-xl p-2 flex justify-center items-center gap-2 bg-black/20 text-white font-bold uppercase"><span>Add
                             Programme</span><i class="bi bi-plus-circle-fill"></i></button>
 
                 </div>

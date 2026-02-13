@@ -369,9 +369,10 @@ class ProgrammeAdd extends Component
                     }
                 }
             }
+            $this->dispatch('update-complete');
         } catch (Throwable $e) {
             Log::info('Error: ' . $e->getMessage());
-            throw new Exception($e->getMessage());
+            $this->dispatch('update-programme-failed',  msg: $e->getMessage());
         }
     }
 }
