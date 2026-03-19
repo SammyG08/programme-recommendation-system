@@ -21,8 +21,8 @@
                 class="flex flex-col sm:flex-row text-white rounded-3xl lg:max-w-[70%] 2xl:max-w-[50%] w-full p-5 min-[320px]:p-10 justify-between gap-10 bg-black/20 border-2 border-blue-950">
                 <button class="w-full bg-blue-500 rounded-3xl px-10 py-2 animate-scale" id="getStartedBtn"><span
                         class="bi bi-mortarboard mr-2"></span>Explore Courses</button>
-                <a href="{{ route('admin') }}" class="w-full bg-transparent rounded-3xl px-10 py-2 border-2 border-white flex justify-center items-center transition-colors hover:bg-white/5"><span
-                        class="bi bi-person-fill-lock mr-2"></span>Administrator</a>
+                {{-- <a href="{{ route('admin') }}" class="w-full bg-transparent rounded-3xl px-10 py-2 border-2 border-white flex justify-center items-center transition-colors hover:bg-white/5"><span
+                        class="bi bi-person-fill-lock mr-2"></span>Administrator</a> --}}
             </div>
         </div>
 
