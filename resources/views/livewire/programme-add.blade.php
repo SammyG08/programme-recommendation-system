@@ -1,6 +1,7 @@
 <div x-data = "{showModal: false, saving:false, error:false}" x-show = "showModal" x-cloak
     x-on:modal-open.window ="showModal = true; $wire.set('facultyId', $event.detail.fid); $wire.resetSelections()"
-    x-on:programme-added.window = "showModal = false" x-on:click.outside="showModal = false; $dispatch('modal-closed')"
+    x-on:programme-added.window = "showModal = false; saving = false"
+    x-on:click.outside="showModal = false; $dispatch('modal-closed'); $wire.set('facultyId', null)"
     x-on:saving.window="saving = true"
     :class="saving ? 'opacity-50 pointer-events-none' : 'opacity-100 pointer-events-auto'"
     x-on:adding-programme-error.window="saving = false"

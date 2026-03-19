@@ -18,19 +18,18 @@
                     WASSCE examinations</p>
             </div>
             <div
-                class="flex flex-col sm:flex-row text-white rounded-3xl lg:max-w-[70%] 2xl:max-w-[50%] w-full p-5 min-[320px]:p-10 justify-between gap-10 bg-black/20">
+                class="flex flex-col sm:flex-row text-white rounded-3xl lg:max-w-[70%] 2xl:max-w-[50%] w-full p-5 min-[320px]:p-10 justify-between gap-10 bg-black/20 border-2 border-blue-950">
                 <button class="w-full bg-blue-500 rounded-3xl px-10 py-2 animate-scale" id="getStartedBtn"><span
-                        class="bi bi-mortarboard mr-2"></span>Get
-                    Started</button>
+                        class="bi bi-mortarboard mr-2"></span>Explore Courses</button>
                 <a href="{{ route('admin') }}" class="w-full bg-transparent rounded-3xl px-10 py-2 border-2 border-white flex justify-center items-center transition-colors hover:bg-white/5"><span
-                        class="bi bi-gear mr-2"></span>Administrator</a>
+                        class="bi bi-person-fill-lock mr-2"></span>Administrator</a>
             </div>
         </div>
 
         <div class="bg-black/60 backdrop-blur-lg w-full flex flex-col items-center justify-start 2xl:justify-start min-h-screen py-4 2xl:p-0 min-[320px]:p-7 hide overflow-hidden h-full sm:h-auto"
             id="uploadResultsContainer">
             <div class="w-full lg:max-w-2xl mx-auto my-20">
-                <div class="w-full flex items-center justify-center mb-5 transition-all duration-500 slideDown fixed top-0 inset-x-0" id="logo">
+                <div class="w-full flex items-center justify-center mb-5 transition-all duration-1000 zoomIn fixed top-0 inset-x-0" id="logo">
                     <img src="{{ asset('assets/images/gctu4.jpg') }}" alt="" class="w-auto h-20 rounded-2xl">
                 </div>
                 <div class="relative flex items-center justify-between">
@@ -80,7 +79,7 @@
                         </p>
                     </div>
                     <div
-                        class="flex flex-col text-white 2xl:rounded-3xl lg:max-w-[70%] 2xl:max-w-[50%] w-full p-5 min-[320px]:p-10 justify-between items-end gap-10 bg-neutral-950/20">
+                        class="flex flex-col text-white 2xl:rounded-3xl lg:max-w-[70%] 2xl:max-w-[50%] w-full p-5 min-[320px]:p-10 justify-between items-end gap-10 bg-neutral-950/20 border-2 border-blue-950">
                         <form
                             class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 2xl:grid-cols-4 w-full gap-5 2xl:gap-0"
                             id="coreResults" method="POST" data-url="{{ route('validate-core-input') }}">
@@ -108,9 +107,9 @@
 
                         </form>
                         <div
-                            class="flex flex-col lg:flex-row text-white rounded-3xl w-full justify-between gap-10 bg-neutral-900 backdrop-blur-2xl">
+                            class="flex flex-col lg:flex-row text-white rounded-3xl w-full justify-between gap-10 bg-gray-950/30">
                             <button
-                                class=" border border-white transition-all duration-300 bg-transparent hover:scale-102 rounded-3xl px-10 py-2"
+                                class=" border border-white transition-all duration-300 bg-transparent hover:scale-101 rounded-3xl px-10 py-2"
                                 id="homeBtn">
                                 <span class="bi bi-arrow-left mr-2"></span>Go back</button>
                             <button
@@ -137,7 +136,7 @@
                     <div
                         class="flex flex-col text-white 2xl:rounded-3xl lg:max-w-[70%] 2xl:max-w-[50%] w-full p-5 min-[320px]:p-10 justify-between items-end gap-10">
                         <form id="electiveResults"
-                            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 w-full gap-10 bg-black/25"
+                            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 w-full gap-10 bg-black/25 2xl:rounded-xl p-2"
                             method="post" data-url="{{ route('validate-electives-input') }}">
                             @csrf
                             <x-elective-details-component header="Elective Details" name="electiveOne"
@@ -150,11 +149,11 @@
                                 className="electiveSelect" selectName="electiveFourGrade" :electives="$electives" />
                         </form>
                         <div
-                            class="flex flex-col lg:flex-row text-white rounded-3xl w-full justify-between gap-10 bg-neutral-900 backdrop-blur-2xl p-1">
-                            <button
+                            class="flex flex-col lg:flex-row text-white rounded-3xl w-full justify-end gap-10 bg-black/30 border-2 border-blue-950 p-1">
+                            {{-- <button
                                 class=" border border-white transition-all duration-300 bg-transparent hover:scale-102 rounded-3xl px-10 py-2"
                                 id="backBtn">
-                                <span class="bi bi-arrow-left mr-2"></span>Go back</button>
+                                <span class="bi bi-arrow-left mr-2"></span>Go back</button> --}}
                             <button
                                 class="transition-all duration-300 bg-blue-500 rounded-3xl px-10 py-2 hover:bg-blue-700"
                                 id="secondNextBtn">Next
@@ -170,38 +169,49 @@
                         class=" text-white font-bold lg:max-w-[70%] 2xl:max-w-[50%] w-full flex flex-col justify-between items-center p-5 lg:p-10 2xl:text-justify gap-5">
                         <div class="flex flex-col items-start gap-4 w-full">
                             <div
-                                class="flex w-full justify-center bg-neutral-900/30 mb-7 p-5 gap-2 text-md md:text-2xl items-center rounded-xl relative border border-blue-500">
+                                class="flex w-full justify-center bg-neutral-900/30 mb-7 p-5 gap-2 text-md md:text-2xl items-center rounded-xl relative">
                                 <i class="bi bi-cpu-fill"></i>
                                 <h1 class="">Curating Eligible Programmes</h1>
-                                {{-- <div class="rounded-xl absolute -top-3 right-0 p-2 bg-blue-500/50 text-xs">processing</div> --}}
                             </div>
-                            {{-- <p class="text-normal text-md md:text-xl w-full mb-3">
-                                We are curating a list of programmes you are eligible to study at
-                                Ghana Communication Technology University.
-                            </p> --}}
-                            <p class="text-normal text-sm md:text-md w-full text-red-500"><i
-                                    class="bi bi-exclamation-triangle-fill mr-2"></i>Please do not
-                                leave this page
-                                during the process</p>
+
+                            <div class="flex justify-between items-center gap-5 text-normal text-sm md:text-md w-full">
+                                <p class=" text-red-500"><i
+                                        class="bi bi-exclamation-triangle-fill mr-2"></i>Please do not
+                                    leave this page
+                                    during the process</p>
+
+                                    <div class="flex items-center justify-end gap-5">
+                                        <button class="w-7 h-7 justify-center items-center rounded-full bg-gray-500 text-white transition-colors hover:bg-gray-700 hidden" id="retryBtn" data-url="{{ route('programmes-recommended') }}">
+                                            <i class="bi bi-arrow-repeat"></i>
+                                        </button>
+                                        <button class="w-7 h-7 flex justify-center items-center rounded-full bg-blue-500 text-white transition-colors hover:bg-blue-700" id="goToHomeBtn">
+                                            <i class="bi bi-house"></i>
+                                        </button>
+                                        
+                                    </div>
+
+                            </div>
+                            
                         </div>
                         <div
                             class="flex flex-col items-start gap-5 w-full bg-black/25 rounded-xl shadow-md shadow-blue-950">
                             <ul class="list-disc list-inside p-2 w-full flex flex-col gap-3">
-                                <li class="flex gap-2 w-full bg-black/30 p-5 rounded-xl transition-colors duration-100 border border-blue-950">
-                                    <span class="step bi bi-check-circle-fill"></span><span class="">Checking
-                                        results</span>
+                                <li class="flex flex-col gap-2 w-full bg-black/30 p-5 rounded-xl transition-colors duration-100 border border-blue-950">
+                                    <div class="flex gap-2 w-full rounded-xl">
+                                        <span class="step1 bi bi-check-circle-fill"></span><span class="">Analyzing your results</span>
+                                    </div>
+                                </li>
+                                <li class="flex flex-col gap-2 w-full bg-black/30 p-5 rounded-xl transition-colors duration-100 border border-blue-950">
+                                    <div class="flex gap-2 w-full rounded-xl">
+                                          <span class="step2 bi bi-check-circle-fill"></span><span class="">Calculating your aggregate score</span>
+                                    </div>
+                                    <span class="uppercase font-bold hidden" id="aggregate"></span>
                                 </li>
                                 <li class="flex gap-2 w-full bg-black/30 p-5 rounded-xl transition-colors duration-100 border border-blue-950">
-                                    <span class="step bi bi-check-circle-fill"></span><span class="">Matching
-                                        programmes</span>
+                                    <span class="step3 bi bi-check-circle-fill"></span><span class="">Matching with university requirements</span>
                                 </li>
                                 <li class="flex gap-2 w-full bg-black/30 p-5 rounded-xl transition-colors duration-100 border border-blue-950">
-                                    <span class="step bi bi-check-circle-fill"></span><span class="">Filtering
-                                        programmes </span>
-                                </li>
-                                <li class="flex gap-2 w-full bg-black/30 p-5 rounded-xl transition-colors duration-100 border border-blue-950">
-                                    <span class="step bi bi-check-circle-fill"></span><span class="">Compiling
-                                        programmes</span>
+                                    <span class="step4 bi bi-check-circle-fill"></span><span class="">Finalizing your recommendations</span>
                                 </li>
 
                             </ul>
@@ -229,8 +239,9 @@
             <div
                 class="text-white font-bold lg:max-w-[70%] 2xl:max-w-[50%] w-full flex flex-col justify-center items-start p-5 min-[320px]:p-10 2xl:text-justify border border-white/50 bg-white/5 rounded-xl">
                 <div
-                    class="flex justify-center w-full p-5 text-xl md:text-5xl bg-blue-950 text-white rounded-xl -translate-y-20 border animate-border">
-                    <i class="bi bi-mortarboard"></i>
+                    class="flex gap-2 justify-center items-center w-full p-5 text-sm md:text-xl bg-blue-950 text-white rounded-xl -translate-y-20 border animate-border" id="aggContainer">
+                    <i class="hidden sm:inline-block bi bi-mortarboard"></i>
+                    <p class="uppercase text-center">Ghana Communication Technology University</p>
                 </div>
                 <h1 class="text-xl md:text-3xl mb-7 -mt-10">
                     Welcome to your academic journey!

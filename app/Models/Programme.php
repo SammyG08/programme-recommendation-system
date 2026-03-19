@@ -94,4 +94,14 @@ class Programme extends Model
         $value = $programmes->count() >= 2 ? true : false;
         return $value;
     }
+
+    public function programmeDuration()
+    {
+
+        $duration = match ($this->programmeType->type) {
+            'Degree' => 4,
+            'Diploma' => 2,
+        };
+        return $duration;
+    }
 }

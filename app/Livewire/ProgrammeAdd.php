@@ -70,6 +70,12 @@ class ProgrammeAdd extends Component
                 $minimumElectiveGradeId = $minimumCoreGradeId;
                 $programmeTypeId = $this->getProgrammeTypeId($this->programme_type);
                 $programme_name = $this->programme_name;
+                $p = Programme::where('programme_name', $programme_name)->get();
+                if ($p->count()) {
+                    session()->flash('error', 'Programme already exists');
+                    $this->dispatch('adding-programme-error');
+                    return;
+                }
                 foreach ($cores as $core) {
                     if ($core) {
                         LOG::INFO('Creating programme with core:', [$core]);
@@ -363,9 +369,10 @@ class ProgrammeAdd extends Component
                     }
                 }
             }
+            $this->dispatch('update-complete');
         } catch (Throwable $e) {
             Log::info('Error: ' . $e->getMessage());
-            throw new Exception($e->getMessage());
+            $this->dispatch('update-programme-failed',  msg: $e->getMessage());
         }
     }
 }

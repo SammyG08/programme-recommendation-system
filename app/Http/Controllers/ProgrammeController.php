@@ -18,7 +18,9 @@ use Illuminate\Validation\ValidationException;;
 class ProgrammeController extends Controller
 {
 
-    // private $gradeMap = ['A1 - C6' => 'credit', 'D7' => 'pass'];
+
+    private $aggregate = 0;
+    private $gotElectivesAggregate = false;
 
     public function validateCoreInput(Request $request)
     {
@@ -49,36 +51,57 @@ class ProgrammeController extends Controller
         }
     }
 
-    public function programmesRecommended(Request $request, int $step = 1)
+    public function programmesRecommended(Request $request)
     {
-        Log::info('Processing programme recommendation request');
         try {
-            $elligibleProgrammesIdBasedOnCores = $this->processCoreResults($request);
-            $focisProgrammesUserElligibleToStudyBasedOnElectives = $this->processElectiveResults($request, 'Faculty of Computing & Information Systems');
-            $foeProgrammesUserElligibleToStudyBasedOnElectives = $this->processElectiveResults($request, 'Faculty of Engineering');
-            $businessSchoolProgrammesElligibleToStudyBasedOnElectives = $this->processElectiveResults($request, 'Business School');
+            $step = (int)$request->get('step');
+            if ($step === 1) {
+                $elligibleProgrammesIdBasedOnCores = $this->processCoreResults($request);
+                $focisProgrammesUserElligibleToStudyBasedOnElectives = $this->processElectiveResults($request, 'Faculty of Computing & Information Systems');
+                $foeProgrammesUserElligibleToStudyBasedOnElectives = $this->processElectiveResults($request, 'Faculty of Engineering');
+                $businessSchoolProgrammesElligibleToStudyBasedOnElectives = $this->processElectiveResults($request, 'Business School');
+                $this->storeInSession(['core_ids' => $elligibleProgrammesIdBasedOnCores, 'focis_ids' => $focisProgrammesUserElligibleToStudyBasedOnElectives, 'foe_ids' => $foeProgrammesUserElligibleToStudyBasedOnElectives, 'bs_ids' => $businessSchoolProgrammesElligibleToStudyBasedOnElectives]);
+                return response()->json(['statusCode' => 808]);
+            } elseif ($step === 2) {
+                $this->calculateAggregate();
+                $this->clearSessionData(['coreGradesSorted', 'electiveGradesSorted']);
+                $focisProgrammesIds = $this->filterArrayBasedOnSimilarIds(session('focis_ids'), session('core_ids'));
+                $foeProgrammesIds = $this->filterArrayBasedOnSimilarIds(session('foe_ids'), session('core_ids'));
+                $businessSchoolProgrammesIds = $this->filterArrayBasedOnSimilarIds(session('bs_ids'), session('core_ids'));
+                $this->clearSessionData(['core_ids', 'focis_ids', 'foe_ids', 'bs_ids']);
+                $this->storeInSession(['focis' => $focisProgrammesIds, 'foe' => $foeProgrammesIds, 'bs' => $businessSchoolProgrammesIds]);
+                return response()->json(['statusCode' => 808, 'aggregate' => $this->aggregate]);
+            } elseif ($step === 3) {
+                $focisProgrammes = $this->getProgrammesFromId(session('focis'));
+                $foeProgrammes = $this->getProgrammesFromId(session('foe'));
+                $businessSchoolProgrammes = $this->getProgrammesFromId(session('bs'));
+                $this->clearSessionData(['focis', 'bs', 'foe']);
+                $this->storeInSession(['focis' => $focisProgrammes, 'foe' => $foeProgrammes, 'bs' => $businessSchoolProgrammes]);
+                return response()->json(['statusCode' => 808]);
+            } elseif ($step === 4) {
+                $data = ['Faculty of Computing & Information Systems' => session('focis'), 'Faculty of Engineering' => session('foe'), 'Business School' => session('bs')];
+                $data = $this->filterEmptyProgrammesOut($data);
+                $returnInfo = count($data) ?
+                    response()->json(['statusCode' => 808, 'data' => $data]) : response()->json(['statusCode' => 444]);
 
-            $focisProgrammesIds = $this->filterArrayBasedOnSimilarIds($focisProgrammesUserElligibleToStudyBasedOnElectives, $elligibleProgrammesIdBasedOnCores);
-            $foeProgrammesIds = $this->filterArrayBasedOnSimilarIds($foeProgrammesUserElligibleToStudyBasedOnElectives, $elligibleProgrammesIdBasedOnCores);
-
-            $businessSchoolProgrammesIds = $this->filterArrayBasedOnSimilarIds($businessSchoolProgrammesElligibleToStudyBasedOnElectives, $elligibleProgrammesIdBasedOnCores);
-
-            $focisProgrammes = $this->getProgrammesFromId($focisProgrammesIds);
-            $foeProgrammes = $this->getProgrammesFromId($foeProgrammesIds);
-            $businessSchoolProgrammes = $this->getProgrammesFromId($businessSchoolProgrammesIds);
-
-            $data = ['Faculty of Computing & Information Systems' => $focisProgrammes, 'Faculty of Engineering' => $foeProgrammes, 'Business School' => $businessSchoolProgrammes];
-            Log::info('Focis Programme ids:', $focisProgrammesIds);
-            Log::info('Foe Programme ids:', $foeProgrammesIds);
-            Log::info('Bs Programme ids:', $businessSchoolProgrammesIds);
-            $data = $this->filterEmptyProgrammesOut($data);
-            $returnInfo = count($data) ?
-                response()->json(['statusCode' => 808, 'data' => $data]) : response()->json(['statusCode' => 444]);
-            return $returnInfo;
+                $this->clearSessionData(['focis', 'bs', 'foe']);
+                return $returnInfo;
+            }
         } catch (Exception $e) {
-            Log::info('Error encountered: ' . $e);
             return response()->json(['statusCode' => 999, 'msg' => $e->getMessage()]);
         }
+    }
+
+    private function storeInSession($data)
+    {
+        foreach ($data as $key => $val) {
+            session([$key => $val]);
+        }
+    }
+
+    private function clearSessionData($data)
+    {
+        session()->forget($data);
     }
 
     private function filterEmptyProgrammesOut($data)
@@ -103,9 +126,8 @@ class ProgrammeController extends Controller
 
         $programme_names = Programme::whereIn('id', $programmesIdArray)
             ->distinct()
-                ->pluck('programme_name')
-                ->toArray();
-        Log::info("Programme names: ", $programme_names);
+            ->pluck('programme_name')
+            ->toArray();
         return $programme_names;
     }
     public function processCoreResults(Request $request)
@@ -115,6 +137,7 @@ class ProgrammeController extends Controller
         $gradeArray = ['english' => $request->get('englishGrade'), 'mathematics' => $request->get('cMathGrade'), 'science' => $request->get('scienceGrade'), 'social' => $request->get('socialGrade')];
         $coresWithBestGrades = $this->getSubjectsWithBestGrades($gradeArray);
         $sortedCoresWithBestGrades = $this->sortSubjectsBasedOnGrade($coresWithBestGrades);
+        $this->storeInSession(['coreGradesSorted' => $this->sortSubjectsBasedOnGrade($gradeArray)]);
         $elligibleProgrammesId = $this->filterProgrammeBasedOnCoreGrade($sortedCoresWithBestGrades);
         return $elligibleProgrammesId;
     }
@@ -129,6 +152,8 @@ class ProgrammeController extends Controller
         $electiveFour = ucwords($request->get('electiveFour'));
 
         $subjectGradesArray = [$electiveOne => $request->get('electiveOneGrade'), $electiveTwo => $request->get('electiveTwoGrade'), $electiveThree => $request->get('electiveThreeGrade'), $electiveFour => $request->get('electiveFourGrade')];
+        if (!$this->gotElectivesAggregate) $this->storeInSession(['electiveGradesSorted' => $this->sortSubjectsBasedOnGrade($subjectGradesArray)]);
+        $this->gotElectivesAggregate = true;
         $electivesWithBestGrades = $this->getSubjectsWithBestGrades($subjectGradesArray);
         $electivesWithBestGradesSorted = $this->sortSubjectsBasedOnGrade($electivesWithBestGrades);
         try {
@@ -149,7 +174,7 @@ class ProgrammeController extends Controller
             }
         }
 
-        if (array_key_exists('subject', $lowestGrade)) {
+        if (!empty($lowestGrade['subject'])) {
             $subjectsWithBestGrades = [];
             foreach (array_keys($gradeArray) as $key) {
                 if (!in_array($key, $lowestGrade['subject'])) {
@@ -173,15 +198,18 @@ class ProgrammeController extends Controller
 
     public function filterProgrammeBasedOnCoreGrade($subjectsWithBestGrades)
     {
+        if (count($subjectsWithBestGrades) < 3) return collect();
         $coreQuery = CoreSubject::query();
-        // Log::info('Core subjects with best grades:', $subjectsWithBestGrades);
         $lowestGrade = array_last($subjectsWithBestGrades);
         $lowestGradeSubject = array_last(array_keys($subjectsWithBestGrades));
         $programmes = collect();
-        if (isset($subjectsWithBestGrades['english']) && isset($subjectsWithBestGrades['mathematics'])) {
 
-            $coreModel = CoreSubject::where('english', '=', 'required')->where('mathematics', '=', 'required')->where($lowestGradeSubject, '=', 'required')->first();
-                $programmes = Programme::where('core_subject_id', '=', $coreModel->id)->where('lowest_grade_for_cores', '>=', $lowestGrade)->get();
+        if (isset($subjectsWithBestGrades['english']) && isset($subjectsWithBestGrades['mathematics'])) {
+            $newQuery = CoreSubject::query()->where('english', '=', 'required')->where('mathematics', '=', 'required');
+            $noEnglishOrMath = array_filter(array_keys($subjectsWithBestGrades), fn($value) => $value !== 'english' && $value !== 'mathematics');
+            $coreModel = $newQuery->where(array_last($noEnglishOrMath), '=', 'required')->first();
+
+            $programmes = Programme::where('core_subject_id', '=', $coreModel->id)->where('lowest_grade_for_cores', '>=', $lowestGrade)->get();
             if (count($subjectsWithBestGrades) === 4) {
                 $cModel = null;
                 if ($lowestGradeSubject !== 'english' && $lowestGradeSubject !== 'mathematics') {
@@ -199,34 +227,57 @@ class ProgrammeController extends Controller
             }
         }
         $programmes = $programmes->unique('id');
-        // Log::info('Programmes found:', $programmes->toArray());
         return $programmes;
+    }
+
+    private function calculateAggregate()
+    {
+        $coreSubjects = session('coreGradesSorted');
+        $electiveSubjects = session('electiveGradesSorted');
+
+        $cMathGrade = $this->makeGradeInt($coreSubjects['mathematics']);
+        $englishGrade = $this->makeGradeInt($coreSubjects['english']);
+        $socialGrade = $this->makeGradeInt($coreSubjects['social']);
+        $scienceGrade = $this->makeGradeInt($coreSubjects['science']);
+        $this->aggregate += $cMathGrade + $englishGrade + min($socialGrade, $scienceGrade);
+
+        foreach (array_values($electiveSubjects) as $idx => $grade) {
+            if ($idx < 3) {
+                $g = $this->makeGradeInt($grade);
+                $this->aggregate += $g;
+            }
+        }
+    }
+
+    private function makeGradeInt($gradeStr)
+    {
+        return (int) substr($gradeStr, -1, 1);
     }
 
     public function elligibleProgrammesIds($electives, $faculty_name)
     {
         $idOfFacultyProgrammesUserCanOffer = [];
-        Log::info('Electives with best grades:', $electives);
         if (count($electives) >= 3 && count($electives) <= 4) {
             $lowestGrade = array_last($electives);
             $keys = array_keys($electives);
             $courseWithSecondLowestGrade = $keys[count($keys) - 2];
             $secondLowestGrade = $electives[$courseWithSecondLowestGrade];
             try {
-                $this->selectingElectivesEngine($idOfFacultyProgrammesUserCanOffer, $electives, $faculty_name, $lowestGrade);
+                $this->matchingElectivesEngine($idOfFacultyProgrammesUserCanOffer, $electives, $faculty_name, $lowestGrade);
                 if (count($electives) === 4) {
-                    $this->selectingElectivesEngine($idOfFacultyProgrammesUserCanOffer, $electives, $faculty_name, $secondLowestGrade);
+                    array_pop($electives);
+                    $this->matchingElectivesEngine($idOfFacultyProgrammesUserCanOffer, $electives, $faculty_name, $secondLowestGrade);
                 }
-            } catch (ModelNotFoundException $e) {
+            } catch (Exception $e) {
                 throw new Exception($e->getMessage());
             }
         }
+
         return array_unique($idOfFacultyProgrammesUserCanOffer);
     }
 
-    private function selectingElectivesEngine(&$idOfFacultyProgrammesUserCanOffer, $electives, $faculty_name, $grade)
+    private function matchingElectivesEngine(&$idOfFacultyProgrammesUserCanOffer, $electives, $faculty_name, $grade)
     {
-        // Log::info('Starting electives for matching: ', $electives);
         $seen = false;
         $faculty = null;
         try {
@@ -243,7 +294,6 @@ class ProgrammeController extends Controller
                 $subjectsOccurence = array_count_values($electiveSubjects);
 
                 if (isset($subjectsOccurence['any']) || isset($subjectsOccurence['science-related subject'])) {
-                    // Log::info('Any or science-related subject found in electives requirements for programme id: ' . $facultyProgramme->id);
                     $seen = true;
                     $remainingElectives = array_keys(array_filter($subjectsOccurence, function ($value, $key) {
                         return $key !== 'any' && $key !== 'science-related subject';
@@ -264,15 +314,12 @@ class ProgrammeController extends Controller
                         }
                     }
                 } else {
-                    // Log::info('Specific electives found in electives requirements for programme id: ' . $facultyProgramme->id);
                     foreach ($electiveSubjects as $subject) {
                         $subjectArray = explode('|', $subject);
-                        Log::info('Checking subject options: ', $subjectArray);
                         foreach ($subjectArray as $s) {
                             if (in_array($s, array_keys($tempElectives))) {
                                 $seen = true;
                                 unset($tempElectives[$s]);
-                                Log::info('Remaining electives after matching: ', $tempElectives);
                                 break;
                             }
                             $seen = false;
