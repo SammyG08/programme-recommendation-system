@@ -21,6 +21,12 @@ jobs:
       - name: Install Dependencies
         run: composer install --no-dev --optimize-autoloader
 
+      - name: Install NPM Dependencies
+        run: npm install
+
+      - name: Build Assets (Vite)
+        run: npm build  
+
       - name: Create Deployment Package
         run: zip -r deploy.zip . -x "*.git*" "node_modules/*" "tests/*" ".env"
 
