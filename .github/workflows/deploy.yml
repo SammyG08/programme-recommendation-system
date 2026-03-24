@@ -1,12 +1,12 @@
 name: Deploy Laravel to AWS
 on:
   push:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: production
+    environment: production 
 
     steps:
       - name: Checkout Source
@@ -15,7 +15,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.3"
+          php-version: '8.4'
           extensions: mbstring, bcmath, gd, zip, pdo_mysql
 
       - name: Install Dependencies
@@ -25,14 +25,12 @@ jobs:
         run: zip -r deploy.zip . -x "*.git*" "node_modules/*" "tests/*" ".env"
 
       - name: Deploy to Elastic Beanstalk
-        uses: aws-actions/aws-elasticbeanstalk-deploy@v1
+        uses: einaregilsson/beanstalk-deploy@v22 
         with:
-          aws-access-key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          application-name: "ProRec"
-          environment-name: "ProRec-env-1"
-          version-label: "deploy-${{ github.sha }}"
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: "ProRec" 
+          environment_name: "ProRec-env-1" 
+          version_label: "deploy-${{ github.sha }}"
           region: "eu-north-1"
-          deployment-package: "deploy.zip"
-
-          
+          deployment_package: "deploy.zip"
