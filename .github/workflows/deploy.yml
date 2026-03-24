@@ -25,7 +25,7 @@ jobs:
         run: zip -r deploy.zip . -x "*.git*" "node_modules/*" "tests/*" ".env"
 
       - name: Deploy to Elastic Beanstalk
-        uses: aws-actions/aws-elasticbeanstalk-deploy@v2
+        uses: aws-actions/aws-elasticbeanstalk-deploy@v1
         with:
           aws-access-key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -34,3 +34,5 @@ jobs:
           version-label: "deploy-${{ github.sha }}"
           region: "eu-north-1"
           deployment-package: "deploy.zip"
+
+          
