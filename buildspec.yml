@@ -3,16 +3,33 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      php: 8.4
-      nodejs: 18
+      php: 8.4 # Matches your Beanstalk platform version
     commands:
-      - echo Installing dependencies...
+      - echo Installing Composer...
+      - curl -sS https://getcomposer.org/installer | php
+      - mv composer.phar /usr/local/bin/composer
+
+  pre_build:
+    commands:
+      - echo Installing source dependencies...
       - composer install --no-dev --optimize-autoloader
+
   build:
     commands:
-      - echo Compiling assets...
-      - npm install
-      - npm run build
+      - echo Build started on `date`
+      # If you use Vite/Tailwind, add your npm commands here:
+      - npm install && npm run build
+      - echo Preparing deployment package...
+
+  post_build:
+    commands:
+      - echo Build completed on `date`
+
 artifacts:
   files:
-    - "**/*"
+    - '**/*'
+  exclude-paths:
+    - 'node_modules/**/*'
+    - 'tests/**/*'
+    - '.git/**/*'
+    - '.env'
